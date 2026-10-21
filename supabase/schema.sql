@@ -60,6 +60,15 @@ create table public.finance_entries (
   created_at timestamptz default now()
 );
 
+create table public.customers (
+  id uuid primary key default uuid_generate_v4(),
+  business_id uuid references public.businesses(id) on delete cascade,
+  name text not null,
+  phone text,
+  email text,
+  created_at timestamptz default now()
+);
+
 -- Function to create profile on new user signup
 create or replace function public.handle_new_user()
 returns trigger
@@ -86,6 +95,7 @@ alter table public.profiles enable row level security;
 alter table public.products enable row level security;
 alter table public.transactions enable row level security;
 alter table public.finance_entries enable row level security;
+alter table public.customers enable row level security;
 
 -- Policies: open for testing (SELECT/INSERT/UPDATE)
 create policy "select_businesses" on public.businesses for select using (true);
@@ -93,15 +103,18 @@ create policy "select_profiles" on public.profiles for select using (true);
 create policy "select_products" on public.products for select using (true);
 create policy "select_transactions" on public.transactions for select using (true);
 create policy "select_finance" on public.finance_entries for select using (true);
+create policy "select_customers" on public.customers for select using (true);
 
 create policy "insert_businesses" on public.businesses for insert with check (true);
 create policy "insert_profiles" on public.profiles for insert with check (true);
 create policy "insert_products" on public.products for insert with check (true);
 create policy "insert_transactions" on public.transactions for insert with check (true);
 create policy "insert_finance" on public.finance_entries for insert with check (true);
+create policy "insert_customers" on public.customers for insert with check (true);
 
 create policy "update_businesses" on public.businesses for update using (true);
 create policy "update_profiles" on public.profiles for update using (true);
 create policy "update_products" on public.products for update using (true);
 create policy "update_transactions" on public.transactions for update using (true);
 create policy "update_finance" on public.finance_entries for update using (true);
+create policy "update_customers" on public.customers for update using (true);

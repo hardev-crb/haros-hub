@@ -1,6 +1,29 @@
 HarOS Hub - Changelog
 ====================
 
+Versi: 0.3.0
+Tanggal: 2026-10-22
+
+### Fitur Baru & Perbaikan
+- **Login & Onboarding**: Onboarding sekarang cek tabel `profiles` (full_name / business_id) sebagai sumber utama agar tidak muncul ulang untuk user Google yang sama. Fallback ke localStorage. UI Login di-dark-modern-kan.
+- **Har-POS**: Dashboard diperbarui (omzet hari ini, riwayat rapi, gradient, icon). Transaksi otomatis mengurangi stok.
+- **Har-Inventory**: Form tambah barang support harga + stok. Daftar barang bisa adjust stok inline (+ / – / edit manual). UI modern emerald.
+- **Har-Finance**: Kartu masuk/keluar/saldo lebih jelas, form input nyaman, error handling jika tabel belum ada.
+- **Har-Customer**: Avatar inisial, form & daftar bersih, gradient sky, error handling.
+- **Har-Sewa & Har-Tenggat**: UI diperbarui dengan icon, card modern, dan styling konsisten.
+- **Har-AI**: Chat bubble lebih bagus, suggestion chips, gradient purple.
+- Error handling ditambahkan di semua halaman yang akses Supabase.
+
+### Database
+- Skema diperbarui: tambah tabel `finance_entries` dan `customers`.
+- Kolom tambahan di `transactions`: `discount`, `items` (jsonb), `created_by`.
+- RLS policy terbuka untuk testing (SELECT/INSERT/UPDATE).
+
+### Catatan
+- Jalankan `supabase/schema.sql` di Supabase SQL Editor untuk membuat/update tabel.
+- UI modern dengan gradient, icon lucide, sticky header, dan card shadow.
+- Deploy otomatis via Netlify dari GitHub branch main.
+
 Versi: 0.2.0
 Tanggal: 2026-10-16
 
