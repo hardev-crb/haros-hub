@@ -1,7 +1,8 @@
--- HarOS Hub Schema (Fixed for Auth + Onboarding)
+-- HarOS Hub Schema (Updated for POS, Inventory, Finance)
 create extension if not exists "uuid-ossp";
 
 -- Drop existing if any
+drop table if exists public.finance_entries cascade;
 drop table if exists public.transactions cascade;
 drop table if exists public.products cascade;
 drop table if exists public.profiles cascade;
@@ -43,7 +44,19 @@ create table public.transactions (
   id uuid primary key default uuid_generate_v4(),
   business_id uuid references public.businesses(id) on delete cascade,
   total numeric default 0,
+  discount numeric default 0,
+  items jsonb default '[]'::jsonb,
   status text default 'completed',
+  created_by uuid,
+  created_at timestamptz default now()
+);
+
+create table public.finance_entries (
+  id uuid primary key default uuid_generate_v4(),
+  type text check (type in ('in', 'out')) not null,
+  amount numeric not null,
+  note text,
+  created_by uuid,
   created_at timestamptz default now()
 );
 
@@ -72,20 +85,23 @@ alter table public.businesses enable row level security;
 alter table public.profiles enable row level security;
 alter table public.products enable row level security;
 alter table public.transactions enable row level security;
+alter table public.finance_entries enable row level security;
 
--- Policies: SELECT (open for now)
+-- Policies: open for testing (SELECT/INSERT/UPDATE)
 create policy "select_businesses" on public.businesses for select using (true);
 create policy "select_profiles" on public.profiles for select using (true);
 create policy "select_products" on public.products for select using (true);
 create policy "select_transactions" on public.transactions for select using (true);
+create policy "select_finance" on public.finance_entries for select using (true);
 
--- Policies: INSERT
 create policy "insert_businesses" on public.businesses for insert with check (true);
 create policy "insert_profiles" on public.profiles for insert with check (true);
 create policy "insert_products" on public.products for insert with check (true);
 create policy "insert_transactions" on public.transactions for insert with check (true);
+create policy "insert_finance" on public.finance_entries for insert with check (true);
 
--- Policies: UPDATE
 create policy "update_businesses" on public.businesses for update using (true);
 create policy "update_profiles" on public.profiles for update using (true);
 create policy "update_products" on public.products for update using (true);
+create policy "update_transactions" on public.transactions for update using (true);
+create policy "update_finance" on public.finance_entries for update using (true);
