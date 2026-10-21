@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { getSupabase } from '../lib/supabase'
+import { Wallet, ArrowLeft, ArrowDownCircle, ArrowUpCircle, Plus } from 'lucide-react'
 
-interface Props {
-  onBack: () => void
-}
+interface Props { onBack: () => void }
 
-interface Transaction {
+interface Entry {
   id: string
   type: 'in' | 'out'
   amount: number
@@ -14,33 +13,48 @@ interface Transaction {
 }
 
 export default function FinanceDashboard({ onBack }: Props) {
-  const [items, setItems] = useState<Transaction[]>([])
+  const [items, setItems] = useState<Entry[]>([])
   const [type, setType] = useState<'in' | 'out'>('in')
   const [amount, setAmount] = useState('')
   const [note, setNote] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [adding, setAdding] = useState(false)
 
   useEffect(() => { load() }, [])
 
   async function load() {
-    const { data } = await getSupabase().from('finance_entries').select('*').order('created_at', { ascending: false }).limit(50)
-    if (data) setItems(data)
-    setLoading(false)
+    try {
+      const { data, error: err } = await getSupabase().from('finance_entries').select('*').order('created_at', { ascending: false }).limit(50)
+      if (err) throw err
+      if (data) setItems(data)
+    } catch (e: any) {
+      setError(e.message || 'Tabel finance_entries belum tersedia. Akan dibuat nanti.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function add() {
     if (!amount || isNaN(Number(amount))) return
-    const supabase = getSupabase()
-    const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('finance_entries').insert({
-      type,
-      amount: Number(amount),
-      note,
-      created_by: user?.id,
-    })
-    setAmount('')
-    setNote('')
-    load()
+    setAdding(true)
+    try {
+      const supabase = getSupabase()
+      const { data: { user } } = await supabase.auth.getUser()
+      const { error: err } = await supabase.from('finance_entries').insert({
+        type,
+        amount: Number(amount),
+        note,
+        created_by: user?.id,
+      })
+      if (err) throw err
+      setAmount(''); setNote('')
+      await load()
+    } catch (e: any) {
+      setError(e.message || 'Gagal menyimpan. Pastikan tabel finance_entries sudah dibuat.')
+    } finally {
+      setAdding(false)
+    }
   }
 
   const income = items.filter(i => i.type === 'in').reduce((s, i) => s + Number(i.amount), 0)
@@ -48,48 +62,57 @@ export default function FinanceDashboard({ onBack }: Props) {
   const balance = income - expense
 
   return (
-    <div className="min-h-screen bg-slate-50 md:ml-56">
-      <header className="bg-white border-b px-4 py-4 flex items-center gap-3">
-        <button onClick={onBack} className="text-slate-500">←</button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 md:ml-56">
+      <header className="bg-white/80 backdrop-blur border-b border-slate-200 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+        <button onClick={onBack} className="p-2 rounded-xl hover:bg-slate-100"><ArrowLeft size={20} /></button>
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center text-white">
+          <Wallet size={20} />
+        </div>
         <div>
-          <h1 className="text-lg font-semibold">Har-Finance</h1>
-          <p className="text-xs text-slate-400">Keuangan & Kas</p>
+          <h1 className="text-lg font-bold text-slate-900">Har-Finance</h1>
+          <p className="text-xs text-slate-500">Keuangan & Kas Usaha</p>
         </div>
       </header>
+
       <main className="p-4 space-y-4 max-w-2xl">
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white rounded-2xl border p-4">
-            <div className="text-xs text-slate-400">Masuk</div>
+          <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1"><ArrowDownCircle size={14} className="text-green-500" /> Masuk</div>
             <div className="font-bold text-green-600">Rp {income.toLocaleString('id-ID')}</div>
           </div>
-          <div className="bg-white rounded-2xl border p-4">
-            <div className="text-xs text-slate-400">Keluar</div>
+          <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1"><ArrowUpCircle size={14} className="text-red-500" /> Keluar</div>
             <div className="font-bold text-red-600">Rp {expense.toLocaleString('id-ID')}</div>
           </div>
-          <div className="bg-white rounded-2xl border p-4">
-            <div className="text-xs text-slate-400">Saldo</div>
-            <div className="font-bold">Rp {balance.toLocaleString('id-ID')}</div>
+          <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+            <div className="text-xs text-slate-500 mb-1">Saldo</div>
+            <div className={`font-bold ${balance >= 0 ? 'text-slate-900' : 'text-red-600'}`}>Rp {balance.toLocaleString('id-ID')}</div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border p-4 space-y-3">
+        {error && <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl">{error}</div>}
+
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 space-y-3 shadow-sm">
+          <div className="text-sm font-semibold text-slate-700 flex items-center gap-2"><Plus size={16} /> Catat Transaksi</div>
           <div className="flex gap-2">
-            <button onClick={() => setType('in')} className={`flex-1 py-2 rounded-xl text-sm ${type === 'in' ? 'bg-green-600 text-white' : 'bg-slate-100'}`}>Masuk</button>
-            <button onClick={() => setType('out')} className={`flex-1 py-2 rounded-xl text-sm ${type === 'out' ? 'bg-red-600 text-white' : 'bg-slate-100'}`}>Keluar</button>
+            <button onClick={() => setType('in')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition ${type === 'in' ? 'bg-green-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}>Masuk</button>
+            <button onClick={() => setType('out')} className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition ${type === 'out' ? 'bg-red-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600'}`}>Keluar</button>
           </div>
-          <input value={amount} onChange={e => setAmount(e.target.value)} placeholder="Jumlah" type="number" className="w-full border rounded-xl px-3 py-2 text-sm" />
-          <input value={note} onChange={e => setNote(e.target.value)} placeholder="Keterangan" className="w-full border rounded-xl px-3 py-2 text-sm" />
-          <button onClick={add} className="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium">Tambah</button>
+          <input value={amount} onChange={e => setAmount(e.target.value)} placeholder="Jumlah (Rp)" type="number" className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30" />
+          <input value={note} onChange={e => setNote(e.target.value)} placeholder="Keterangan" className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30" />
+          <button onClick={add} disabled={adding || !amount} className="w-full py-2.5 bg-gradient-to-r from-green-600 to-emerald-500 text-white rounded-xl text-sm font-medium disabled:opacity-50 active:scale-[0.98] transition">
+            {adding ? 'Menyimpan...' : 'Simpan'}
+          </button>
         </div>
 
-        <div className="bg-white rounded-2xl border overflow-hidden">
-          <div className="px-4 py-3 border-b text-sm font-medium">Riwayat</div>
-          {loading ? <div className="p-4 text-sm text-slate-400">Memuat...</div> : items.length === 0 ? <div className="p-4 text-sm text-slate-400">Belum ada data</div> : (
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b text-sm font-semibold text-slate-700">Riwayat Keuangan</div>
+          {loading ? <div className="p-6 text-center text-sm text-slate-400">Memuat...</div> : items.length === 0 ? <div className="p-6 text-center text-sm text-slate-400">Belum ada data</div> : (
             <div className="divide-y">
               {items.map(i => (
-                <div key={i.id} className="px-4 py-3 flex justify-between">
+                <div key={i.id} className="px-4 py-3.5 flex justify-between items-center">
                   <div>
-                    <div className="text-sm">{i.note || (i.type === 'in' ? 'Pemasukan' : 'Pengeluaran')}</div>
+                    <div className="text-sm font-medium text-slate-900">{i.note || (i.type === 'in' ? 'Pemasukan' : 'Pengeluaran')}</div>
                     <div className="text-xs text-slate-400">{new Date(i.created_at).toLocaleString('id-ID')}</div>
                   </div>
                   <div className={`text-sm font-semibold ${i.type === 'in' ? 'text-green-600' : 'text-red-600'}`}>
