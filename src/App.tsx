@@ -35,11 +35,12 @@ function App() {
     const supabase = getSupabase()
     checkAuth()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        const onboarded = localStorage.getItem('haros_onboarding_done') === 'true'
-        setPage(onboarded ? 'launcher' : 'onboarding')
+        const done = await isOnboardingDone(session.user.id)
+        setPage(done ? 'launcher' : 'onboarding')
       } else if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('haros_onboarding_done')
         setPage('login')
       }
     })
@@ -47,12 +48,34 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
+  async function isOnboardingDone(userId: string): Promise<boolean> {
+    // Fast cache first
+    if (localStorage.getItem('haros_onboarding_done') === 'true') return true
+
+    try {
+      const supabase = getSupabase()
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, business_id')
+        .eq('id', userId)
+        .maybeSingle()
+
+      if (profile && (profile.full_name || profile.business_id)) {
+        localStorage.setItem('haros_onboarding_done', 'true')
+        return true
+      }
+    } catch {
+      // Table may not exist yet — fall back to localStorage
+    }
+    return false
+  }
+
   async function checkAuth() {
     const supabase = getSupabase()
     const { data: { session } } = await supabase.auth.getSession()
     if (session) {
-      const onboarded = localStorage.getItem('haros_onboarding_done') === 'true'
-      setPage(onboarded ? 'launcher' : 'onboarding')
+      const done = await isOnboardingDone(session.user.id)
+      setPage(done ? 'launcher' : 'onboarding')
     } else {
       setPage('login')
     }
@@ -70,9 +93,15 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-900">
-      {page === 'login' && <Login onLogin={() => {
-        const onboarded = localStorage.getItem('haros_onboarding_done') === 'true'
-        navigate(onboarded ? 'launcher' : 'onboarding')
+      {page === 'login' && <Login onLogin={async () => {
+        const supabase = getSupabase()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const done = await isOnboardingDone(user.id)
+          navigate(done ? 'launcher' : 'onboarding')
+        } else {
+          navigate('onboarding')
+        }
       }} />}
       {page === 'onboarding' && <Onboarding onContinue={() => navigate('launcher')} />}
       {page === 'launcher' && <Launcher onNavigate={navigate} />}
