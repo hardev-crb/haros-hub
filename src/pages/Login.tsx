@@ -71,24 +71,24 @@ export default function Login({ onLogin }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <img src="/logos/haros-hub-logo.jpg" alt="HarOS Hub" className="w-16 h-16 rounded-2xl object-cover mx-auto mb-4 shadow-lg" />
-          <h1 className="text-2xl font-bold text-slate-900">HarOS Hub</h1>
-          <p className="text-slate-500 text-sm mt-1">Masuk ke akun HarOS Hub Anda</p>
+          <img src="/logos/haros-hub-logo.jpg" alt="HarOS Hub" className="w-16 h-16 rounded-2xl object-cover mx-auto mb-4 shadow-xl ring-2 ring-white/20" />
+          <h1 className="text-2xl font-bold text-white">HarOS Hub</h1>
+          <p className="text-slate-300 text-sm mt-1">Masuk untuk mengelola usaha Anda</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+        <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur rounded-3xl p-6 shadow-xl border border-white/20">
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-slate-600">Username / Email</label>
+              <label className="text-xs font-medium text-slate-600">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="nama@email.com"
-                className="w-full mt-1.5 px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full mt-1.5 px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
             </div>
             <div>
@@ -99,12 +99,12 @@ export default function Login({ onLogin }: Props) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10 bg-white"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -112,12 +112,12 @@ export default function Login({ onLogin }: Props) {
             </div>
           </div>
 
-          {error && <p className="text-red-500 text-xs mt-3">{error}</p>}
+          {error && <p className="text-red-500 text-xs mt-3 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-6 py-3.5 rounded-xl bg-blue-600 text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60 hover:bg-blue-700 transition"
+            className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60 hover:shadow-md active:scale-[0.98] transition"
           >
             <LogIn size={18} />
             {loading ? 'Memproses...' : isSignUp ? 'Daftar' : 'Masuk'}
@@ -155,6 +155,8 @@ export default function Login({ onLogin }: Props) {
             {isSignUp ? 'Sudah punya akun? Masuk' : 'Belum punya akun? Daftar'}
           </button>
         </form>
+
+        <p className="text-center text-xs text-slate-400 mt-6">Dengan masuk, Anda setuju menggunakan HarOS Hub untuk mengelola usaha.</p>
       </div>
     </div>
   )
