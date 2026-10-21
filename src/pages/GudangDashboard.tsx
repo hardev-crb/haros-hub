@@ -17,6 +17,8 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [newName, setNewName] = useState('')
+  const [newPrice, setNewPrice] = useState('')
+  const [newStock, setNewStock] = useState('')
 
   useEffect(() => {
     loadProducts()
@@ -30,10 +32,16 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
   }
 
   async function addProduct() {
-    if (!newName) return
+    if (!newName.trim()) return
     const supabase = getSupabase()
-    await supabase.from('products').insert({ name: newName, price: 0, stock: 0 })
+    await supabase.from('products').insert({
+      name: newName.trim(),
+      price: Number(newPrice) || 0,
+      stock: Number(newStock) || 0,
+    })
     setNewName('')
+    setNewPrice('')
+    setNewStock('')
     loadProducts()
   }
 
@@ -61,16 +69,33 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border p-4">
-          <div className="flex gap-2">
+        <div className="bg-white rounded-2xl border p-4 space-y-3">
+          <div className="text-sm font-medium">Tambah Barang Baru</div>
+          <input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Nama barang"
+            className="w-full px-3 py-2 border rounded-xl text-sm"
+          />
+          <div className="grid grid-cols-2 gap-2">
             <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="Nama barang baru"
-              className="flex-1 px-3 py-2 border rounded-xl text-sm"
+              value={newPrice}
+              onChange={(e) => setNewPrice(e.target.value)}
+              placeholder="Harga jual"
+              type="number"
+              className="px-3 py-2 border rounded-xl text-sm"
             />
-            <button onClick={addProduct} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm">Tambah</button>
+            <input
+              value={newStock}
+              onChange={(e) => setNewStock(e.target.value)}
+              placeholder="Stok awal"
+              type="number"
+              className="px-3 py-2 border rounded-xl text-sm"
+            />
           </div>
+          <button onClick={addProduct} className="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium">
+            Tambah Barang
+          </button>
         </div>
 
         <div className="bg-white rounded-2xl border shadow-sm">
