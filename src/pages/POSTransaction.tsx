@@ -26,8 +26,9 @@ export default function POSTransaction({ onBack }: Props) {
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
   const [settings, setSettings] = useState<Settings>({ tax_percent: 0, service_percent: 0, default_packing_fee: 0 })
   const [promos, setPromos] = useState<Promo[]>([])
-  const [showHeld, setShowHeld] = useState(false)
-  const [showTables, setShowTables] = useState(false)
+  const [options, setOptions] = useState<{id:string; product_id:string; name:string; price:number}[]>([])
+  const [picking, setPicking] = useState<Product | null>(null)
+  const [selectedOpts, setSelectedOpts] = useState<{name:string; price:number}[]>([])
 
   const [category, setCategory] = useState('')
 
@@ -41,26 +42,48 @@ export default function POSTransaction({ onBack }: Props) {
 
   async function loadAll() {
     const sb = getSupabase()
-    const [p, h, t, s, pr] = await Promise.all([
+    const [p, h, t, s, pr, op] = await Promise.all([
       sb.from('products').select('*').order('name'),
       sb.from('held_orders').select('*').order('created_at', { ascending: false }),
       sb.from('tables').select('*').order('name'),
       sb.from('pos_settings').select('*').limit(1).maybeSingle(),
       sb.from('promos').select('*').eq('active', true),
+      sb.from('product_options').select('*'),
     ])
     if (p.data) setProducts(p.data)
     if (h.data) setHeld(h.data)
     if (t.data) setTables(t.data)
     if (s.data) setSettings(s.data)
     if (pr.data) setPromos(pr.data)
+    if (op.data) setOptions(op.data)
   }
 
   function addToCart(p: Product) {
+    const opts = options.filter(o => o.product_id === p.id)
+    if (opts.length > 0) {
+      setPicking(p)
+      setSelectedOpts([])
+      return
+    }
     setItems(prev => {
       const existing = prev.find(i => i.id === p.id && !i.options?.length)
       if (existing) return prev.map(i => i.id === p.id && !i.options?.length ? { ...i, qty: i.qty + 1 } : i)
       return [...prev, { id: p.id, name: p.name, price: Number(p.price), qty: 1 }]
     })
+  }
+
+  function confirmOptions() {
+    if (!picking) return
+    const extra = selectedOpts.reduce((s, o) => s + Number(o.price), 0)
+    setItems(prev => [...prev, {
+      id: picking.id,
+      name: picking.name + (selectedOpts.length ? ` (${selectedOpts.map(o => o.name).join(', ')})` : ''),
+      price: Number(picking.price) + extra,
+      qty: 1,
+      options: selectedOpts,
+    }])
+    setPicking(null)
+    setSelectedOpts([])
   }
 
   function updateQty(idx: number, delta: number) {
@@ -251,7 +274,23 @@ export default function POSTransaction({ onBack }: Props) {
         </div>
       )}
 
-      {showTables && (
+      {picking && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center p-4" onClick={() => setPicking(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-sm p-4" onClick={e => e.stopPropagation()}>
+            <div className="font-semibold mb-2">{picking.name}</div>
+            <div className="text-xs text-slate-500 mb-3">Pilih opsi</div>
+            {options.filter(o => o.product_id === picking.id).map(o => {
+              const on = selectedOpts.some(s => s.name === o.name)
+              return (
+                <button key={o.id} onClick={() => setSelectedOpts(prev => on ? prev.filter(s => s.name !== o.name) : [...prev, { name: o.name, price: Number(o.price) }])} className={`w-full text-left px-3 py-2 mb-1 rounded-lg border text-sm ${on ? 'border-blue-500 bg-blue-50' : ''}`}>
+                  {o.name} <span className="text-slate-500">+Rp {Number(o.price).toLocaleString('id-ID')}</span>
+                </button>
+              )
+            })}
+            <button onClick={confirmOptions} className="w-full mt-3 py-2.5 bg-blue-600 text-white rounded-xl text-sm">Tambah</button>
+          </div>
+        </div>
+      )}
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center p-4" onClick={() => setShowTables(false)}>
           <div className="bg-white rounded-2xl w-full max-w-sm max-h-[50vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="p-3 border-b font-semibold">Pilih Meja</div>

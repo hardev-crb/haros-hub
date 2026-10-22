@@ -14,9 +14,17 @@ export default function ShiftDashboard({ onBack }: Props) {
 
   useEffect(() => { load() }, [])
 
+  const [expected, setExpected] = useState(0)
+
   async function load() {
     const { data } = await getSupabase().from('shifts').select('*').order('opened_at', { ascending: false }).limit(20)
     if (data) setShifts(data)
+    const open = data?.find(s => s.status === 'open')
+    if (open) {
+      const { data: txs } = await getSupabase().from('transactions').select('total').gte('created_at', open.opened_at).neq('status', 'void')
+      const sales = (txs || []).reduce((s, t) => s + Number(t.total || 0), 0)
+      setExpected(Number(open.opening_cash || 0) + sales)
+    }
   }
 
   const openShift = shifts.find(s => s.status === 'open')
@@ -34,6 +42,7 @@ export default function ShiftDashboard({ onBack }: Props) {
     await getSupabase().from('shifts').update({
       closed_at: new Date().toISOString(),
       closing_cash: closing,
+      expected_cash: expected,
       status: 'closed',
       note: note || openShift.note,
     }).eq('id', openShift.id)
@@ -52,6 +61,7 @@ export default function ShiftDashboard({ onBack }: Props) {
             <div className="text-sm font-medium text-emerald-600 mb-2">Shift sedang terbuka</div>
             <div className="text-xs text-slate-500 mb-3">Dibuka: {new Date(openShift.opened_at).toLocaleString('id-ID')}</div>
             <div className="text-sm">Kas awal: Rp {Number(openShift.opening_cash).toLocaleString('id-ID')}</div>
+            <div className="text-sm text-emerald-600">Expected: Rp {expected.toLocaleString('id-ID')}</div>
             <div className="mt-3 space-y-2">
               <input type="number" value={closing} onChange={e => setClosing(Number(e.target.value))} placeholder="Kas akhir" className="w-full border rounded-xl px-3 py-2 text-sm" />
               <input value={note} onChange={e => setNote(e.target.value)} placeholder="Catatan penutupan" className="w-full border rounded-xl px-3 py-2 text-sm" />
