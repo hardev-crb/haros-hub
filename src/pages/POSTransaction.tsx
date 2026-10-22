@@ -1,282 +1,255 @@
 import { useState, useEffect } from 'react'
 import { getSupabase } from '../lib/supabase'
-import { Menu, Calendar, Plus, Trash2, Save, Search, Pause, Play } from 'lucide-react'
+import { Menu, Calendar, Plus, Trash2, Save, Search, Pause, Play, Utensils } from 'lucide-react'
 
-interface Props {
-  onBack: () => void
-}
-
-interface CartItem {
-  id: string
-  name: string
-  price: number
-  qty: number
-}
-
-interface Product {
-  id: string
-  name: string
-  price: number
-  stock: number
-}
-
-interface HeldOrder {
-  id: string
-  items: CartItem[]
-  note: string
-  createdAt: number
-}
+interface Props { onBack: () => void }
+interface CartItem { id: string; name: string; price: number; qty: number; options?: { name: string; price: number }[] }
+interface Product { id: string; name: string; price: number; stock: number; category?: string; image_url?: string }
+interface HeldOrder { id: string; items: CartItem[]; note: string; table_id?: string; created_at: string }
+interface Table { id: string; name: string; status: string; capacity: number }
+interface Promo { id: string; name: string; code?: string; type: 'percent' | 'amount'; value: number; min_subtotal: number; active: boolean }
+interface Settings { tax_percent: number; service_percent: number; default_packing_fee: number }
 
 export default function POSTransaction({ onBack }: Props) {
   const [products, setProducts] = useState<Product[]>([])
   const [items, setItems] = useState<CartItem[]>([])
   const [discount, setDiscount] = useState(0)
-  const [saving, setSaving] = useState(false)
+  const [promoCode, setPromoCode] = useState('')
+  const [appliedPromo, setAppliedPromo] = useState<Promo | null>(null)
   const [paymentType, setPaymentType] = useState<'tunai' | 'qris' | 'transfer'>('tunai')
+  const [orderType, setOrderType] = useState<'dinein' | 'takeaway' | 'delivery'>('dinein')
+  const [deliveryFee, setDeliveryFee] = useState(0)
   const [search, setSearch] = useState('')
+  const [saving, setSaving] = useState(false)
   const [held, setHeld] = useState<HeldOrder[]>([])
+  const [tables, setTables] = useState<Table[]>([])
+  const [selectedTable, setSelectedTable] = useState<string | null>(null)
+  const [settings, setSettings] = useState<Settings>({ tax_percent: 0, service_percent: 0, default_packing_fee: 0 })
+  const [promos, setPromos] = useState<Promo[]>([])
   const [showHeld, setShowHeld] = useState(false)
+  const [showTables, setShowTables] = useState(false)
 
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
 
-  useEffect(() => {
-    loadProducts()
-  }, [])
+  useEffect(() => { loadAll() }, [])
 
-  async function loadProducts() {
-    const { data } = await getSupabase().from('products').select('*').order('name')
-    if (data) setProducts(data)
+  async function loadAll() {
+    const sb = getSupabase()
+    const [p, h, t, s, pr] = await Promise.all([
+      sb.from('products').select('*').order('name'),
+      sb.from('held_orders').select('*').order('created_at', { ascending: false }),
+      sb.from('tables').select('*').order('name'),
+      sb.from('pos_settings').select('*').limit(1).maybeSingle(),
+      sb.from('promos').select('*').eq('active', true),
+    ])
+    if (p.data) setProducts(p.data)
+    if (h.data) setHeld(h.data)
+    if (t.data) setTables(t.data)
+    if (s.data) setSettings(s.data)
+    if (pr.data) setPromos(pr.data)
   }
 
   function addToCart(p: Product) {
     setItems(prev => {
-      const existing = prev.find(i => i.id === p.id)
-      if (existing) {
-        return prev.map(i => i.id === p.id ? { ...i, qty: i.qty + 1 } : i)
-      }
-      return [...prev, { id: p.id, name: p.name, price: p.price, qty: 1 }]
+      const existing = prev.find(i => i.id === p.id && !i.options?.length)
+      if (existing) return prev.map(i => i.id === p.id && !i.options?.length ? { ...i, qty: i.qty + 1 } : i)
+      return [...prev, { id: p.id, name: p.name, price: Number(p.price), qty: 1 }]
     })
   }
 
-  function updateQty(id: string, delta: number) {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i))
+  function updateQty(idx: number, delta: number) {
+    setItems(prev => prev.map((it, i) => i === idx ? { ...it, qty: Math.max(1, it.qty + delta) } : it))
   }
 
-  function removeItem(id: string) {
-    setItems(prev => prev.filter(i => i.id !== id))
+  function removeItem(idx: number) {
+    setItems(prev => prev.filter((_, i) => i !== idx))
   }
 
-  function holdOrder() {
+  function applyPromo() {
+    const code = promoCode.trim().toUpperCase()
+    const found = promos.find(p => p.code?.toUpperCase() === code && p.active)
+    if (!found) { alert('Kode promo tidak valid'); return }
+    const sub = items.reduce((s, i) => s + i.price * i.qty, 0)
+    if (sub < Number(found.min_subtotal || 0)) { alert('Minimum belanja belum tercapai'); return }
+    setAppliedPromo(found)
+  }
+
+  const subtotal = items.reduce((s, i) => s + Number(i.price) * i.qty, 0)
+  const promoDiscount = appliedPromo
+    ? appliedPromo.type === 'percent' ? Math.round(subtotal * appliedPromo.value / 100) : Math.min(subtotal, appliedPromo.value)
+    : 0
+  const manualDiscount = Math.round(subtotal * (discount / 100))
+  const totalDiscount = Math.min(subtotal, promoDiscount + manualDiscount)
+  const afterDiscount = subtotal - totalDiscount
+  const tax = Math.round(afterDiscount * (settings.tax_percent || 0) / 100)
+  const service = Math.round(afterDiscount * (settings.service_percent || 0) / 100)
+  const packing = orderType === 'takeaway' ? Number(settings.default_packing_fee || 0) : 0
+  const delivery = orderType === 'delivery' ? Number(deliveryFee || 0) : 0
+  const total = afterDiscount + tax + service + packing + delivery
+
+  async function holdOrder() {
     if (items.length === 0) return
-    const order: HeldOrder = {
-      id: Date.now().toString(),
-      items: [...items],
-      note: `Pesanan ${held.length + 1}`,
-      createdAt: Date.now(),
-    }
-    setHeld(prev => [order, ...prev])
+    const sb = getSupabase()
+    const { data: { user } } = await sb.auth.getUser()
+    const { data, error } = await sb.from('held_orders').insert({
+      items, note: `Pesanan ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`,
+      table_id: selectedTable, created_by: user?.id
+    }).select().single()
+    if (error) { alert(error.message); return }
+    if (data) setHeld(prev => [data, ...prev])
     setItems([])
     setDiscount(0)
+    setAppliedPromo(null)
+    setPromoCode('')
   }
 
-  function recallOrder(id: string) {
+  async function recallOrder(id: string) {
     const order = held.find(h => h.id === id)
     if (!order) return
-    setItems(order.items)
+    setItems(order.items || [])
+    setSelectedTable(order.table_id || null)
+    await getSupabase().from('held_orders').delete().eq('id', id)
     setHeld(prev => prev.filter(h => h.id !== id))
     setShowHeld(false)
   }
 
-  const subtotal = items.reduce((sum, i) => sum + Number(i.price) * i.qty, 0)
-  const discountAmount = subtotal * (discount / 100)
-  const total = subtotal - discountAmount
-
   async function saveTransaction() {
     if (items.length === 0) return
     setSaving(true)
-    const supabase = getSupabase()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    const { error: txError } = await supabase.from('transactions').insert({
-      total,
-      discount: discountAmount,
-      items,
+    const sb = getSupabase()
+    const { data: { user } } = await sb.auth.getUser()
+    const { error } = await sb.from('transactions').insert({
+      total, discount: totalDiscount, items,
       status: paymentType,
       created_by: user?.id,
     })
-
-    if (txError) {
-      setSaving(false)
-      alert('Gagal menyimpan transaksi: ' + txError.message)
-      return
-    }
-
+    if (error) { setSaving(false); alert(error.message); return }
     for (const item of items) {
-      const { data: prod } = await supabase.from('products').select('stock').eq('id', item.id).single()
-      if (prod) {
-        const newStock = Math.max(0, (prod.stock || 0) - item.qty)
-        await supabase.from('products').update({ stock: newStock }).eq('id', item.id)
-      }
+      const { data: prod } = await sb.from('products').select('stock').eq('id', item.id).single()
+      if (prod) await sb.from('products').update({ stock: Math.max(0, (prod.stock || 0) - item.qty) }).eq('id', item.id)
     }
-
+    if (selectedTable) await sb.from('tables').update({ status: 'available' }).eq('id', selectedTable)
     setSaving(false)
-    alert('Transaksi berhasil disimpan')
+    alert('Transaksi berhasil')
     onBack()
+  }
+
+  function printKitchen() {
+    const lines = items.map(i => `${i.qty}x ${i.name}`).join('\n')
+    const text = `KITCHEN TICKET\n${new Date().toLocaleString('id-ID')}\nMeja: ${tables.find(t => t.id === selectedTable)?.name || '-'}\n\n${lines}\n\nTotal item: ${items.reduce((s, i) => s + i.qty, 0)}`
+    const w = window.open('', '_blank', 'width=400,height=600')
+    if (w) { w.document.write(`<pre style="font-family:monospace;padding:16px">${text}</pre>`); w.print() }
   }
 
   return (
     <div className="min-h-screen bg-slate-50 md:ml-56">
       <header className="bg-gradient-to-r from-blue-700 to-blue-600 text-white sticky top-0 z-20">
         <div className="px-4 py-3 flex items-center justify-between">
-          <button onClick={onBack} className="p-1"><Menu size={22} /></button>
-          <div className="text-center">
-            <div className="font-bold text-sm">Har-POS</div>
-            <div className="text-[10px] text-blue-100">Transaksi Baru</div>
-          </div>
-          <div className="flex items-center gap-1 text-xs bg-white/15 rounded-full px-2 py-1">
-            <Calendar size={12} />
-            <span>{new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</span>
+          <button onClick={onBack}><Menu size={22} /></button>
+          <div className="text-center text-sm font-bold">Har-POS</div>
+          <div className="text-xs bg-white/15 rounded-full px-2 py-1 flex items-center gap-1">
+            <Calendar size={12} /> {new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
           </div>
         </div>
       </header>
 
-      <div className="grid md:grid-cols-[1fr_340px] gap-4 p-4">
-        {/* Product Grid */}
+      <div className="grid md:grid-cols-[1fr_360px] gap-4 p-4">
         <div>
-          <div className="relative mb-3">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Cari produk..."
-              className="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-            />
+          <div className="flex gap-2 mb-3">
+            <div className="relative flex-1">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari produk..." className="w-full pl-9 pr-3 py-2.5 bg-white border rounded-xl text-sm" />
+            </div>
+            <button onClick={() => setShowTables(true)} className="px-3 py-2 bg-white border rounded-xl text-sm flex items-center gap-1">
+              <Utensils size={14} /> {selectedTable ? tables.find(t => t.id === selectedTable)?.name : 'Meja'}
+            </button>
           </div>
-
-          {filtered.length === 0 ? (
-            <div className="bg-white rounded-2xl border p-8 text-center text-sm text-slate-400">
-              Produk tidak ditemukan
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {filtered.map(p => {
-                const inCart = items.find(i => i.id === p.id)?.qty || 0
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => addToCart(p)}
-                    className="bg-white rounded-2xl border border-slate-100 p-3 text-left shadow-sm active:scale-[0.98] transition relative"
-                  >
-                    {inCart > 0 && (
-                      <span className="absolute top-2 right-2 bg-blue-600 text-white text-[10px] font-bold min-w-[20px] h-5 rounded-full flex items-center justify-center">
-                        {inCart}
-                      </span>
-                    )}
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 text-white flex items-center justify-center font-bold text-sm mb-2">
-                      {p.name.slice(0, 1).toUpperCase()}
-                    </div>
-                    <div className="text-xs font-semibold text-slate-800 line-clamp-2 leading-tight">{p.name}</div>
-                    <div className="text-xs font-bold text-blue-600 mt-1.5">Rp {Number(p.price).toLocaleString('id-ID')}</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">Stok: {p.stock}</div>
-                  </button>
-                )
-              })}
-            </div>
-          )}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {filtered.map(p => {
+              const qty = items.filter(i => i.id === p.id).reduce((s, i) => s + i.qty, 0)
+              return (
+                <button key={p.id} onClick={() => addToCart(p)} className="bg-white rounded-2xl border p-3 text-left relative active:scale-[0.98]">
+                  {qty > 0 && <span className="absolute top-2 right-2 bg-blue-600 text-white text-[10px] font-bold min-w-[18px] h-5 rounded-full flex items-center justify-center">{qty}</span>}
+                  {p.image_url ? <img src={p.image_url} alt="" className="w-full h-16 object-cover rounded-lg mb-2" /> : <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 text-white flex items-center justify-center font-bold mb-2">{p.name.slice(0,1)}</div>}
+                  <div className="text-xs font-semibold line-clamp-2">{p.name}</div>
+                  <div className="text-xs font-bold text-blue-600 mt-1">Rp {Number(p.price).toLocaleString('id-ID')}</div>
+                  <div className="text-[10px] text-slate-400">Stok: {p.stock}{p.category ? ` · ${p.category}` : ''}</div>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
-        {/* Cart Panel */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 h-fit md:sticky md:top-16">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-white rounded-2xl border p-4 h-fit md:sticky md:top-16">
+          <div className="flex justify-between items-center mb-3">
             <div className="font-semibold text-sm">Pesanan</div>
             <div className="flex gap-1">
-              <button onClick={() => setShowHeld(true)} className="text-xs px-2 py-1 rounded-lg bg-slate-100 text-slate-600 flex items-center gap-1">
-                <Play size={12} /> {held.length}
-              </button>
-              <button onClick={holdOrder} disabled={items.length === 0} className="text-xs px-2 py-1 rounded-lg bg-amber-100 text-amber-700 disabled:opacity-40 flex items-center gap-1">
-                <Pause size={12} /> Tahan
-              </button>
+              <button onClick={() => setShowHeld(true)} className="text-xs px-2 py-1 bg-slate-100 rounded-lg flex items-center gap-1"><Play size={12} /> {held.length}</button>
+              <button onClick={holdOrder} disabled={!items.length} className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded-lg disabled:opacity-40 flex items-center gap-1"><Pause size={12} /> Tahan</button>
             </div>
           </div>
-
-          {items.length === 0 ? (
-            <p className="text-xs text-slate-400 text-center py-6">Belum ada item</p>
-          ) : (
-            <div className="space-y-2 max-h-64 overflow-auto mb-3">
-              {items.map(item => (
-                <div key={item.id} className="flex items-center gap-2 text-sm">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{item.name}</div>
-                    <div className="text-[11px] text-slate-500">Rp {Number(item.price).toLocaleString('id-ID')}</div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 rounded border text-xs">-</button>
-                    <span className="w-5 text-center text-xs">{item.qty}</span>
-                    <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 rounded border text-xs">+</button>
-                  </div>
-                  <button onClick={() => removeItem(item.id)} className="text-red-500 p-1"><Trash2 size={14} /></button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="border-t pt-3 space-y-2 text-sm">
+          <div className="space-y-2 max-h-52 overflow-auto mb-3">
+            {items.length === 0 && <p className="text-xs text-slate-400 text-center py-4">Belum ada item</p>}
+            {items.map((it, idx) => (
+              <div key={idx} className="flex items-center gap-2 text-sm">
+                <div className="flex-1 min-w-0"><div className="font-medium truncate">{it.name}</div><div className="text-[11px] text-slate-500">Rp {Number(it.price).toLocaleString('id-ID')}</div></div>
+                <div className="flex items-center gap-1"><button onClick={() => updateQty(idx, -1)} className="w-6 h-6 border rounded text-xs">-</button><span className="w-5 text-center text-xs">{it.qty}</span><button onClick={() => updateQty(idx, 1)} className="w-6 h-6 border rounded text-xs">+</button></div>
+                <button onClick={() => removeItem(idx)} className="text-red-500"><Trash2 size={14} /></button>
+              </div>
+            ))}
+          </div>
+          <div className="border-t pt-2 space-y-1 text-xs">
             <div className="flex justify-between"><span>Subtotal</span><span>Rp {subtotal.toLocaleString('id-ID')}</span></div>
-            <div className="flex items-center justify-between">
-              <span>Diskon %</span>
-              <input type="number" value={discount} onChange={e => setDiscount(Number(e.target.value))} className="w-14 border rounded px-1.5 py-0.5 text-right text-xs" />
-            </div>
-            <div className="flex justify-between font-bold text-base pt-1">
-              <span>Total</span>
-              <span>Rp {total.toLocaleString('id-ID')}</span>
-            </div>
+            <div className="flex items-center gap-1"><input value={promoCode} onChange={e => setPromoCode(e.target.value)} placeholder="Kode promo" className="flex-1 border rounded px-2 py-1 text-xs" /><button onClick={applyPromo} className="px-2 py-1 bg-slate-100 rounded text-xs">Apply</button></div>
+            {appliedPromo && <div className="text-emerald-600">Promo: {appliedPromo.name} (-Rp {promoDiscount.toLocaleString('id-ID')})</div>}
+            <div className="flex items-center justify-between"><span>Diskon %</span><input type="number" value={discount} onChange={e => setDiscount(Number(e.target.value))} className="w-12 border rounded px-1 text-right" /></div>
+            {tax > 0 && <div className="flex justify-between"><span>Pajak ({settings.tax_percent}%)</span><span>Rp {tax.toLocaleString('id-ID')}</span></div>}
+            {service > 0 && <div className="flex justify-between"><span>Service ({settings.service_percent}%)</span><span>Rp {service.toLocaleString('id-ID')}</span></div>}
+            {packing > 0 && <div className="flex justify-between"><span>Packing</span><span>Rp {packing.toLocaleString('id-ID')}</span></div>}
+            {orderType === 'delivery' && <div className="flex items-center justify-between"><span>Ongkir</span><input type="number" value={deliveryFee} onChange={e => setDeliveryFee(Number(e.target.value))} className="w-16 border rounded px-1 text-right" /></div>}
+            <div className="flex justify-between font-bold text-sm pt-1"><span>Total</span><span>Rp {total.toLocaleString('id-ID')}</span></div>
           </div>
-
-          <div className="mt-3">
-            <div className="text-xs text-slate-500 mb-1.5">Metode Bayar</div>
-            <div className="flex gap-1.5">
-              {(['tunai', 'qris', 'transfer'] as const).map(pt => (
-                <button
-                  key={pt}
-                  onClick={() => setPaymentType(pt)}
-                  className={`flex-1 py-1.5 rounded-lg text-xs capitalize ${paymentType === pt ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}
-                >
-                  {pt}
-                </button>
-              ))}
-            </div>
+          <div className="mt-2 flex gap-1">
+            {(['dinein', 'takeaway', 'delivery'] as const).map(ot => (
+              <button key={ot} onClick={() => setOrderType(ot)} className={`flex-1 py-1 rounded text-[11px] ${orderType === ot ? 'bg-blue-600 text-white' : 'bg-slate-100'}`}>{ot}</button>
+            ))}
           </div>
-
-          <button
-            onClick={saveTransaction}
-            disabled={saving || items.length === 0}
-            className="w-full mt-4 py-3 rounded-xl bg-blue-600 text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            <Save size={16} />
-            {saving ? 'Menyimpan...' : 'Simpan Transaksi'}
-          </button>
+          <div className="mt-2 flex gap-1">
+            {(['tunai', 'qris', 'transfer'] as const).map(pt => (
+              <button key={pt} onClick={() => setPaymentType(pt)} className={`flex-1 py-1.5 rounded text-xs capitalize ${paymentType === pt ? 'bg-blue-600 text-white' : 'bg-slate-100'}`}>{pt}</button>
+            ))}
+          </div>
+          <div className="mt-3 flex gap-2">
+            <button onClick={printKitchen} disabled={!items.length} className="flex-1 py-2 border rounded-xl text-xs">Kitchen</button>
+            <button onClick={saveTransaction} disabled={saving || !items.length} className="flex-[2] py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold disabled:opacity-50">{saving ? '...' : 'Simpan'}</button>
+          </div>
         </div>
       </div>
 
       {showHeld && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm max-h-[60vh] overflow-auto">
-            <div className="p-4 border-b font-semibold flex justify-between">
-              Pesanan Ditahan
-              <button onClick={() => setShowHeld(false)}>✕</button>
-            </div>
-            {held.length === 0 ? (
-              <div className="p-6 text-center text-sm text-slate-400">Tidak ada pesanan ditahan</div>
-            ) : (
-              held.map(h => (
-                <button key={h.id} onClick={() => recallOrder(h.id)} className="w-full text-left px-4 py-3 border-b hover:bg-slate-50">
-                  <div className="font-medium text-sm">{h.note}</div>
-                  <div className="text-xs text-slate-500">{h.items.length} item · {new Date(h.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div>
-                </button>
-              ))
-            )}
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center p-4" onClick={() => setShowHeld(false)}>
+          <div className="bg-white rounded-2xl w-full max-w-sm max-h-[50vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <div className="p-3 border-b font-semibold">Pesanan Ditahan</div>
+            {held.length === 0 && <div className="p-4 text-sm text-slate-400">Kosong</div>}
+            {held.map(h => (
+              <button key={h.id} onClick={() => recallOrder(h.id)} className="w-full text-left px-4 py-3 border-b text-sm">
+                {h.note} · {h.items?.length || 0} item
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {showTables && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center p-4" onClick={() => setShowTables(false)}>
+          <div className="bg-white rounded-2xl w-full max-w-sm max-h-[50vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <div className="p-3 border-b font-semibold">Pilih Meja</div>
+            {tables.length === 0 && <div className="p-4 text-sm text-slate-400">Belum ada meja. Tambah di Admin.</div>}
+            {tables.map(t => (
+              <button key={t.id} onClick={() => { setSelectedTable(t.id); setShowTables(false) }} className="w-full text-left px-4 py-3 border-b text-sm flex justify-between">
+                <span>{t.name}</span><span className="text-xs text-slate-400">{t.status}</span>
+              </button>
+            ))}
           </div>
         </div>
       )}
