@@ -134,8 +134,11 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
               className="px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             />
           </div>
-          <input value={newCategory} onChange={e => setNewCategory(e.target.value)} placeholder="Kategori (opsional)" className="px-3 py-2.5 border border-slate-200 rounded-xl text-sm" />
-          <input type="file" accept="image/*" onChange={e => setNewImage(e.target.files?.[0] || null)} className="text-xs" />
+          <input value={newCategory} onChange={e => setNewCategory(e.target.value)} placeholder="Kategori (opsional)" className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm" />
+          <label className="block">
+            <span className="text-xs text-slate-500 mb-1 block">Gambar produk</span>
+            <input type="file" accept="image/*" onChange={e => setNewImage(e.target.files?.[0] || null)} className="w-full text-sm file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-emerald-50 file:text-emerald-700" />
+          </label>
           <button onClick={addProduct} disabled={adding || !newName.trim()} className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl text-sm font-medium disabled:opacity-50 active:scale-[0.98] transition">
             {adding ? 'Menambahkan...' : 'Tambah Barang'}
           </button>
