@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getSupabase } from '../lib/supabase'
-import { Menu, Calendar, User, Box, Plus, Trash2, Save } from 'lucide-react'
+import { Menu, Calendar, User, Box, Plus, Trash2, CreditCard, Save } from 'lucide-react'
 
 interface Props {
   onBack: () => void
@@ -25,7 +25,13 @@ export default function POSTransaction({ onBack }: Props) {
   const [items, setItems] = useState<CartItem[]>([])
   const [discount, setDiscount] = useState(0)
   const [saving, setSaving] = useState(false)
+  const [paymentType, setPaymentType] = useState<'tunai' | 'qris' | 'transfer'>('tunai')
   const [showProducts, setShowProducts] = useState(false)
+  const [search, setSearch] = useState('')
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(search.toLowerCase())
+  )
 
   useEffect(() => {
     loadProducts()
@@ -64,19 +70,32 @@ export default function POSTransaction({ onBack }: Props) {
     setSaving(true)
     const supabase = getSupabase()
     const { data: { user } } = await supabase.auth.getUser()
-    const { error } = await supabase.from('transactions').insert({
+
+    const { error: txError } = await supabase.from('transactions').insert({
       total,
       discount: discountAmount,
       items: items,
+      status: paymentType,
       created_by: user?.id,
     })
-    setSaving(false)
-    if (!error) {
-      alert('Transaksi berhasil disimpan')
-      onBack()
-    } else {
-      alert('Gagal menyimpan: ' + error.message)
+
+    if (txError) {
+      setSaving(false)
+      alert('Gagal menyimpan transaksi: ' + txError.message)
+      return
     }
+
+    for (const item of items) {
+      const { data: prod } = await supabase.from('products').select('stock').eq('id', item.id).single()
+      if (prod) {
+        const newStock = Math.max(0, (prod.stock || 0) - item.qty)
+        await supabase.from('products').update({ stock: newStock }).eq('id', item.id)
+      }
+    }
+
+    setSaving(false)
+    alert('Transaksi berhasil disimpan')
+    onBack()
   }
 
   return (
@@ -146,23 +165,47 @@ export default function POSTransaction({ onBack }: Props) {
         {showProducts && (
           <div className="fixed inset-0 bg-black/40 z-50 flex items-end md:items-center justify-center p-4">
             <div className="bg-white rounded-2xl w-full max-w-md max-h-[70vh] overflow-auto">
-              <div className="p-4 border-b font-semibold flex justify-between">
-                Pilih Produk
-                <button onClick={() => setShowProducts(false)}>✕</button>
+              <div className="p-4 border-b">
+                <div className="font-semibold flex justify-between mb-3">
+                  Pilih Produk
+                  <button onClick={() => { setShowProducts(false); setSearch('') }}>✕</button>
+                </div>
+                <input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Cari nama produk..."
+                  className="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                  autoFocus
+                />
               </div>
-              {products.length === 0 ? (
-                <div className="p-4 text-sm text-slate-400">Belum ada produk. Tambahkan di Har-Inventory dulu.</div>
+              {filteredProducts.length === 0 ? (
+                <div className="p-4 text-sm text-slate-400">Produk tidak ditemukan</div>
               ) : (
-                products.map(p => (
-                  <button key={p.id} onClick={() => addToCart(p)} className="w-full text-left px-4 py-3 border-b hover:bg-slate-50">
+                filteredProducts.map(p => (
+                  <button key={p.id} onClick={() => { addToCart(p); setSearch('') }} className="w-full text-left px-4 py-3 border-b hover:bg-slate-50 active:bg-blue-50">
                     <div className="font-medium text-sm">{p.name}</div>
-                    <div className="text-xs text-slate-500">Rp {p.price.toLocaleString('id-ID')} · Stok: {p.stock}</div>
+                    <div className="text-xs text-slate-500">Rp {Number(p.price).toLocaleString('id-ID')} · Stok: {p.stock}</div>
                   </button>
                 ))
               )}
             </div>
           </div>
         )}
+
+        <div className="bg-white rounded-2xl border p-4 space-y-2">
+          <div className="text-sm font-medium text-slate-700 mb-2">Metode Pembayaran</div>
+          <div className="flex gap-2">
+            {(['tunai', 'qris', 'transfer'] as const).map(pt => (
+              <button
+                key={pt}
+                onClick={() => setPaymentType(pt)}
+                className={`flex-1 py-2 rounded-xl text-sm capitalize ${paymentType === pt ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}
+              >
+                {pt}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="bg-white rounded-2xl border p-4 space-y-2">
           <div className="flex justify-between text-sm">
