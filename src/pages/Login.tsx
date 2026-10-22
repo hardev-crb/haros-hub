@@ -55,9 +55,8 @@ export default function Login({ onLogin }: Props) {
     setLoading(true)
     setError('')
     const supabase = getSupabase()
-    const redirectUrl = window.location.hostname.includes('netlify.app')
-      ? 'https://haros-hub.netlify.app/'
-      : window.location.origin + '/'
+    // Selalu pakai origin saat ini (Cloudflare / local / domain custom)
+    const redirectUrl = window.location.origin + '/'
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
