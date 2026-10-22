@@ -20,10 +20,9 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
   const [error, setError] = useState('')
   const [newName, setNewName] = useState('')
   const [newPrice, setNewPrice] = useState('')
-  const [newStock, setNewStock] = useState('')
+  const [newCategory, setNewCategory] = useState('')
+  const [newImage, setNewImage] = useState<File | null>(null)
   const [adding, setAdding] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editStock, setEditStock] = useState('')
 
   useEffect(() => { loadProducts() }, [])
 
@@ -43,13 +42,25 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
     if (!newName.trim()) return
     setAdding(true)
     try {
-      const { error: err } = await getSupabase().from('products').insert({
+      const sb = getSupabase()
+      let imageUrl = ''
+      if (newImage) {
+        const path = `products/${Date.now()}-${newImage.name}`
+        const { error: upErr } = await sb.storage.from('product-images').upload(path, newImage)
+        if (!upErr) {
+          const { data } = sb.storage.from('product-images').getPublicUrl(path)
+          imageUrl = data.publicUrl
+        }
+      }
+      const { error: err } = await sb.from('products').insert({
         name: newName.trim(),
         price: Number(newPrice) || 0,
         stock: Number(newStock) || 0,
+        category: newCategory || null,
+        image_url: imageUrl || null,
       })
       if (err) throw err
-      setNewName(''); setNewPrice(''); setNewStock('')
+      setNewName(''); setNewPrice(''); setNewStock(''); setNewCategory(''); setNewImage(null)
       await loadProducts()
     } catch (e: any) {
       setError(e.message || 'Gagal menambah produk')
@@ -57,6 +68,9 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
       setAdding(false)
     }
   }
+
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editStock, setEditStock] = useState('')
 
   async function updateStock(id: string, newStock: number) {
     try {
@@ -68,8 +82,6 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
       setError(e.message || 'Gagal update stok')
     }
   }
-
-  const lowStock = products.filter(p => p.stock < 5).length
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50">
@@ -122,6 +134,8 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
               className="px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             />
           </div>
+          <input value={newCategory} onChange={e => setNewCategory(e.target.value)} placeholder="Kategori (opsional)" className="px-3 py-2.5 border border-slate-200 rounded-xl text-sm" />
+          <input type="file" accept="image/*" onChange={e => setNewImage(e.target.files?.[0] || null)} className="text-xs" />
           <button onClick={addProduct} disabled={adding || !newName.trim()} className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-xl text-sm font-medium disabled:opacity-50 active:scale-[0.98] transition">
             {adding ? 'Menambahkan...' : 'Tambah Barang'}
           </button>

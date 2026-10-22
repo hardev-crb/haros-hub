@@ -18,12 +18,12 @@ import ShiftDashboard from './pages/ShiftDashboard'
 import TableManager from './pages/TableManager'
 import PromoManager from './pages/PromoManager'
 import ToppingManager from './pages/ToppingManager'
-import TransactionHistory from './pages/TransactionHistory'
+import ShiftReport from './pages/ShiftReport'
 import ModulePlaceholder from './pages/ModulePlaceholder'
 
 export type Page = 
   | 'login' | 'onboarding' | 'launcher' 
-  | 'pos' | 'pos-tx' | 'shift' | 'reservation' | 'tables' | 'promos' | 'pos-settings' | 'toppings' | 'tx-history' 
+  | 'pos' | 'pos-tx' | 'shift' | 'reservation' | 'tables' | 'promos' | 'pos-settings' | 'toppings' | 'tx-history' | 'shift-report' 
   | 'gudang' | 'gudang-detail' 
   | 'sales' | 'staff' 
   | 'finance' | 'customer' | 'purchase' 
@@ -118,6 +118,7 @@ function App() {
       {page === 'pos-settings' && <POSSettings onBack={() => navigate('launcher')} />}
       {page === 'toppings' && <ToppingManager onBack={() => navigate('launcher')} />}
       {page === 'tx-history' && <TransactionHistory onBack={() => navigate('launcher')} />}
+      {page === 'shift-report' && <ShiftReport onBack={() => navigate('launcher')} />}
       {page === 'gudang' && <GudangDashboard onBack={() => navigate('launcher')} onProductDetail={() => navigate('gudang-detail')} />}
       {page === 'gudang-detail' && <GudangProductDetail onBack={() => navigate('gudang')} />}
       {page === 'sales' && <SalesDashboard onBack={() => navigate('launcher')} />}
