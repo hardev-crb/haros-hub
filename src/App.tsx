@@ -14,12 +14,13 @@ import FinanceDashboard from './pages/FinanceDashboard'
 import CustomerDashboard from './pages/CustomerDashboard'
 import RentalDashboard from './pages/RentalDashboard'
 import DeadlineDashboard from './pages/DeadlineDashboard'
-import AIDashboard from './pages/AIDashboard'
+import ShiftDashboard from './pages/ShiftDashboard'
+import ReservationDashboard from './pages/ReservationDashboard'
 import ModulePlaceholder from './pages/ModulePlaceholder'
 
 export type Page = 
   | 'login' | 'onboarding' | 'launcher' 
-  | 'pos' | 'pos-tx' 
+  | 'pos' | 'pos-tx' | 'shift' | 'reservation' 
   | 'gudang' | 'gudang-detail' 
   | 'sales' | 'staff' 
   | 'finance' | 'customer' | 'purchase' 
@@ -107,12 +108,15 @@ function App() {
       {page === 'launcher' && <Launcher onNavigate={navigate} />}
       {page === 'pos' && <POSDashboard onBack={() => navigate('launcher')} onNewTx={() => navigate('pos-tx')} />}
       {page === 'pos-tx' && <POSTransaction onBack={() => navigate('pos')} />}
+      {page === 'shift' && <ShiftDashboard onBack={() => navigate('launcher')} />}
+      {page === 'reservation' && <ReservationDashboard onBack={() => navigate('launcher')} />}
       {page === 'gudang' && <GudangDashboard onBack={() => navigate('launcher')} onProductDetail={() => navigate('gudang-detail')} />}
       {page === 'gudang-detail' && <GudangProductDetail onBack={() => navigate('gudang')} />}
       {page === 'sales' && <SalesDashboard onBack={() => navigate('launcher')} />}
       {page === 'staff' && <StaffDashboard onBack={() => navigate('launcher')} />}
       {page === 'db-settings' && <DatabaseSettings />}
 
+      {/* New modules */}
       {page === 'finance' && <FinanceDashboard onBack={() => navigate('launcher')} />}
       {page === 'customer' && <CustomerDashboard onBack={() => navigate('launcher')} />}
       {page === 'purchase' && <ModulePlaceholder onBack={() => navigate('launcher')} title="Har-Purchase" desc="Pembelian dari supplier dan manajemen stok masuk." icon="🚚" />}

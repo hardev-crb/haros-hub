@@ -5,7 +5,8 @@ interface Props {
 }
 
 const modules = [
-  { name: 'Har-POS', desc: 'Kasir & Transaksi', page: 'pos' as Page, icon: '🛒', gradient: 'from-blue-500 to-cyan-400' },
+  { name: 'Har-Shift', desc: 'Shift Kasir', page: 'shift' as Page, icon: '⏱️', gradient: 'from-blue-600 to-indigo-500' },
+  { name: 'Har-Reservasi', desc: 'Reservasi Meja', page: 'reservation' as Page, icon: '📅', gradient: 'from-teal-500 to-cyan-400' },
   { name: 'Har-Inventory', desc: 'Stok & Inventori', page: 'gudang' as Page, icon: '📦', gradient: 'from-emerald-500 to-teal-400' },
   { name: 'Har-Sale', desc: 'Target & Penjualan', page: 'sales' as Page, icon: '📈', gradient: 'from-violet-500 to-purple-400' },
   { name: 'Har-Staff', desc: 'Karyawan & Tim', page: 'staff' as Page, icon: '👥', gradient: 'from-amber-500 to-orange-400' },
@@ -26,6 +27,7 @@ export default function Launcher({ onNavigate }: Props) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 md:ml-56 text-white">
+      {/* Header */}
       <header className="bg-white/5 backdrop-blur-xl border-b border-white/10 px-4 md:px-6 py-4 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <img src="/logos/haros-hub-logo.jpg" alt="" className="w-10 h-10 rounded-xl object-cover ring-2 ring-white/20" />
@@ -38,6 +40,7 @@ export default function Launcher({ onNavigate }: Props) {
       </header>
 
       <main className="p-4 md:p-8 max-w-6xl mx-auto">
+        {/* Hero */}
         <div className="mb-8 relative">
           <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl rounded-full opacity-50" />
           <h1 className="relative text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-slate-300 bg-clip-text text-transparent">
@@ -48,6 +51,7 @@ export default function Launcher({ onNavigate }: Props) {
           </p>
         </div>
 
+        {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
             { label: 'Transaksi Hari Ini', value: '—', icon: '🛒' },
@@ -63,6 +67,7 @@ export default function Launcher({ onNavigate }: Props) {
           ))}
         </div>
 
+        {/* Modules Grid */}
         <div className="mb-4">
           <h2 className="text-sm font-medium text-slate-300 mb-3">Modul Aplikasi</h2>
         </div>
