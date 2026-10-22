@@ -15,12 +15,14 @@ import CustomerDashboard from './pages/CustomerDashboard'
 import RentalDashboard from './pages/RentalDashboard'
 import DeadlineDashboard from './pages/DeadlineDashboard'
 import ShiftDashboard from './pages/ShiftDashboard'
-import ReservationDashboard from './pages/ReservationDashboard'
+import TableManager from './pages/TableManager'
+import PromoManager from './pages/PromoManager'
+import POSSettings from './pages/POSSettings'
 import ModulePlaceholder from './pages/ModulePlaceholder'
 
 export type Page = 
   | 'login' | 'onboarding' | 'launcher' 
-  | 'pos' | 'pos-tx' | 'shift' | 'reservation' 
+  | 'pos' | 'pos-tx' | 'shift' | 'reservation' | 'tables' | 'promos' | 'pos-settings' 
   | 'gudang' | 'gudang-detail' 
   | 'sales' | 'staff' 
   | 'finance' | 'customer' | 'purchase' 
@@ -110,6 +112,9 @@ function App() {
       {page === 'pos-tx' && <POSTransaction onBack={() => navigate('pos')} />}
       {page === 'shift' && <ShiftDashboard onBack={() => navigate('launcher')} />}
       {page === 'reservation' && <ReservationDashboard onBack={() => navigate('launcher')} />}
+      {page === 'tables' && <TableManager onBack={() => navigate('launcher')} />}
+      {page === 'promos' && <PromoManager onBack={() => navigate('launcher')} />}
+      {page === 'pos-settings' && <POSSettings onBack={() => navigate('launcher')} />}
       {page === 'gudang' && <GudangDashboard onBack={() => navigate('launcher')} onProductDetail={() => navigate('gudang-detail')} />}
       {page === 'gudang-detail' && <GudangProductDetail onBack={() => navigate('gudang')} />}
       {page === 'sales' && <SalesDashboard onBack={() => navigate('launcher')} />}

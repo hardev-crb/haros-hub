@@ -6,7 +6,9 @@ interface Props {
 
 const modules = [
   { name: 'Har-Shift', desc: 'Shift Kasir', page: 'shift' as Page, icon: '⏱️', gradient: 'from-blue-600 to-indigo-500' },
-  { name: 'Har-Reservasi', desc: 'Reservasi Meja', page: 'reservation' as Page, icon: '📅', gradient: 'from-teal-500 to-cyan-400' },
+  { name: 'Har-Meja', desc: 'Manajemen Meja', page: 'tables' as Page, icon: '🪑', gradient: 'from-orange-500 to-amber-400' },
+  { name: 'Har-Promo', desc: 'Kelola Promo', page: 'promos' as Page, icon: '🎁', gradient: 'from-fuchsia-500 to-pink-400' },
+  { name: 'Har-POS Set', desc: 'Pajak & Service', page: 'pos-settings' as Page, icon: '⚙️', gradient: 'from-slate-600 to-slate-500' },
   { name: 'Har-Inventory', desc: 'Stok & Inventori', page: 'gudang' as Page, icon: '📦', gradient: 'from-emerald-500 to-teal-400' },
   { name: 'Har-Sale', desc: 'Target & Penjualan', page: 'sales' as Page, icon: '📈', gradient: 'from-violet-500 to-purple-400' },
   { name: 'Har-Staff', desc: 'Karyawan & Tim', page: 'staff' as Page, icon: '👥', gradient: 'from-amber-500 to-orange-400' },
