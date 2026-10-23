@@ -5,9 +5,10 @@ import { ShoppingCart, Plus, ArrowLeft, TrendingUp, Receipt } from 'lucide-react
 interface Props {
   onBack?: () => void
   onNewTx?: () => void
+  onNavigate?: (page: string) => void
 }
 
-export default function POSDashboard({ onBack, onNewTx }: Props) {
+export default function POSDashboard({ onBack, onNewTx, onNavigate }: Props) {
   const [transactions, setTransactions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -65,6 +66,24 @@ export default function POSDashboard({ onBack, onNewTx }: Props) {
             <div className="text-xs text-slate-500 mb-1">Total Omzet (terakhir)</div>
             <div className="text-xl font-bold text-slate-900">Rp {total.toLocaleString('id-ID')}</div>
           </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 mb-6">
+          {[
+            { label: 'Meja', page: 'tables', icon: '🪑' },
+            { label: 'Promo', page: 'promos', icon: '🎁' },
+            { label: 'Topping', page: 'toppings', icon: '🧋' },
+            { label: 'Shift', page: 'shift', icon: '⏱️' },
+            { label: 'Reservasi', page: 'reservation', icon: '📅' },
+            { label: 'Riwayat', page: 'tx-history', icon: '📋' },
+            { label: 'Laporan', page: 'shift-report', icon: '📊' },
+            { label: 'Setting', page: 'pos-settings', icon: '⚙️' },
+          ].map(m => (
+            <button key={m.page} onClick={() => onNavigate?.(m.page)} className="bg-white border rounded-xl p-3 text-center text-xs hover:bg-slate-50">
+              <div className="text-lg">{m.icon}</div>
+              <div className="mt-1 font-medium">{m.label}</div>
+            </button>
+          ))}
         </div>
 
         {error && <div className="mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl">{error}</div>}

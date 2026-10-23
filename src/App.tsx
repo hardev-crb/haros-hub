@@ -109,7 +109,7 @@ function App() {
       }} />}
       {page === 'onboarding' && <Onboarding onContinue={() => navigate('launcher')} />}
       {page === 'launcher' && <Launcher onNavigate={navigate} />}
-      {page === 'pos' && <POSDashboard onBack={() => navigate('launcher')} onNewTx={() => navigate('pos-tx')} />}
+      {page === 'pos' && <POSDashboard onBack={() => navigate('launcher')} onNewTx={() => navigate('pos-tx')} onNavigate={navigate} />}
       {page === 'pos-tx' && <POSTransaction onBack={() => navigate('pos')} />}
       {page === 'shift' && <ShiftDashboard onBack={() => navigate('launcher')} />}
       {page === 'reservation' && <ReservationDashboard onBack={() => navigate('launcher')} />}
