@@ -184,12 +184,13 @@ export default function POSTransaction({ onBack }: Props) {
 
       <div className="grid md:grid-cols-[1fr_360px] gap-4 p-4">
         <div>
-          <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
+          <div className="flex gap-2 mb-2 overflow-x-auto pb-1">
             <button onClick={() => setCategory('')} className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${!category ? 'bg-blue-600 text-white' : 'bg-white border'}`}>Semua</button>
             {categories.map(c => (
               <button key={c} onClick={() => setCategory(c)} className={`px-3 py-1 rounded-full text-xs whitespace-nowrap ${category === c ? 'bg-blue-600 text-white' : 'bg-white border'}`}>{c}</button>
             ))}
           </div>
+          <div className="flex gap-2 mb-3">
             <div className="relative flex-1">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari produk..." className="w-full pl-9 pr-3 py-2.5 bg-white border rounded-xl text-sm" />
@@ -291,6 +292,8 @@ export default function POSTransaction({ onBack }: Props) {
           </div>
         </div>
       )}
+
+      {showTables && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center p-4" onClick={() => setShowTables(false)}>
           <div className="bg-white rounded-2xl w-full max-w-sm max-h-[50vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="p-3 border-b font-semibold">Pilih Meja</div>
