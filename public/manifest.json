@@ -1,0 +1,21 @@
+{
+  "name": "HarOS Hub",
+  "short_name": "HarOS",
+  "description": "Pusat kendali operasional usaha",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/logos/haros-hub-logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/logos/haros-hub-logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
