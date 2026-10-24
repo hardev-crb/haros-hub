@@ -135,18 +135,6 @@ function App() {
       {page === 'report' && <ModulePlaceholder onBack={() => navigate('launcher')} title="Har-Report" desc="Laporan penjualan, keuangan, dan analitik usaha." icon="📊" />}
       {page === 'ai' && <AIDashboard onBack={() => navigate('launcher')} />}
 
-      {page !== 'login' && page !== 'onboarding' && page !== 'launcher' && page !== 'pos-tx' && page !== 'gudang-detail' && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur border-t border-white/10 shadow-lg z-50 md:hidden">
-          <div className="flex justify-around py-2 overflow-x-auto">
-            <button onClick={() => navigate('launcher')} className="flex flex-col items-center px-3 py-1 text-xs text-slate-300"><span className="text-lg">🏠</span>Home</button>
-            <button onClick={() => navigate('pos')} className="flex flex-col items-center px-3 py-1 text-xs text-slate-300"><span className="text-lg">🛒</span>POS</button>
-            <button onClick={() => navigate('gudang')} className="flex flex-col items-center px-3 py-1 text-xs text-slate-300"><span className="text-lg">📦</span>Inv</button>
-            <button onClick={() => navigate('finance')} className="flex flex-col items-center px-3 py-1 text-xs text-slate-300"><span className="text-lg">💰</span>Fin</button>
-            <button onClick={() => navigate('ai')} className="flex flex-col items-center px-3 py-1 text-xs text-slate-300"><span className="text-lg">🤖</span>AI</button>
-          </div>
-        </nav>
-      )}
-
       {page !== 'login' && page !== 'onboarding' && (
         <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-slate-900 border-r border-white/10 flex-col p-4 z-40 text-white">
           <div className="flex items-center gap-2 mb-8">
