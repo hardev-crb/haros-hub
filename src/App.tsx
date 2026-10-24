@@ -18,7 +18,7 @@ import ShiftDashboard from './pages/ShiftDashboard'
 import TableManager from './pages/TableManager'
 import PromoManager from './pages/PromoManager'
 import ToppingManager from './pages/ToppingManager'
-import ShiftReport from './pages/ShiftReport'
+import InstallPrompt from './components/InstallPrompt'
 import ModulePlaceholder from './pages/ModulePlaceholder'
 
 export type Page = 

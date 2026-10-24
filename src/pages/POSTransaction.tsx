@@ -201,22 +201,22 @@ export default function POSTransaction({ onBack }: Props) {
               <Utensils size={14} /> {selectedTable ? tables.find(t => t.id === selectedTable)?.name : 'Meja'}
             </button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             {filtered.map(p => {
               const qty = items.filter(i => i.id === p.id).reduce((s, i) => s + i.qty, 0)
               return (
-                <button key={p.id} onClick={() => addToCart(p)} className="bg-white rounded-2xl border p-3 text-left relative active:scale-[0.98]">
-                  {qty > 0 && <span className="absolute top-2 right-2 bg-blue-600 text-white text-[10px] font-bold min-w-[18px] h-5 rounded-full flex items-center justify-center">{qty}</span>}
+                <button key={p.id} onClick={() => addToCart(p)} className="bg-white rounded-xl border border-slate-200 p-2.5 text-left relative active:scale-[0.98] shadow-sm hover:shadow transition">
+                  {qty > 0 && <span className="absolute top-1.5 right-1.5 bg-blue-600 text-white text-[10px] font-bold min-w-[20px] h-5 rounded-full flex items-center justify-center z-10">{qty}</span>}
                   {p.image_url ? (
-                    <div className="w-full h-28 bg-slate-50 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
-                      <img src={p.image_url} alt="" className="max-w-full max-h-full object-contain" />
+                    <div className="w-full aspect-[4/3] bg-slate-50 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                      <img src={p.image_url} alt="" className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 text-white flex items-center justify-center font-bold mb-2">{p.name.slice(0,1)}</div>
+                    <div className="w-full aspect-[4/3] rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 text-white flex items-center justify-center font-bold text-2xl mb-2">{p.name.slice(0,1)}</div>
                   )}
-                  <div className="text-xs font-semibold line-clamp-2">{p.name}</div>
+                  <div className="text-xs font-semibold line-clamp-2 leading-tight">{p.name}</div>
                   <div className="text-xs font-bold text-blue-600 mt-1">Rp {Number(p.price).toLocaleString('id-ID')}</div>
-                  <div className="text-[10px] text-slate-400">Stok: {p.stock}{p.category ? ` · ${p.category}` : ''}</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">{p.category || 'Umum'}</div>
                 </button>
               )
             })}
