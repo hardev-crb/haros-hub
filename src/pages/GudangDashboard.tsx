@@ -12,6 +12,8 @@ interface Product {
   name: string
   price: number
   stock: number
+  image_url?: string
+  category?: string
 }
 
 export default function GudangDashboard({ onBack, onProductDetail }: Props) {
@@ -154,9 +156,16 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
             <div className="divide-y">
               {products.map((p) => (
                 <div key={p.id} className="px-4 py-3.5 flex justify-between items-center hover:bg-slate-50 transition">
-                  <div className="flex-1 min-w-0" onClick={onProductDetail}>
-                    <div className="text-sm font-medium text-slate-900 truncate">{p.name}</div>
-                    <div className="text-xs text-slate-500">Rp {Number(p.price).toLocaleString('id-ID')}</div>
+                  <div className="flex items-center gap-3 flex-1 min-w-0" onClick={onProductDetail}>
+                    {p.image_url ? (
+                      <img src={p.image_url} alt="" className="w-10 h-10 object-contain bg-slate-50 rounded-lg" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-400 text-white flex items-center justify-center font-bold text-sm">{p.name.slice(0,1)}</div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-slate-900 truncate">{p.name}</div>
+                      <div className="text-xs text-slate-500">Rp {Number(p.price).toLocaleString('id-ID')}</div>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {editingId === p.id ? (
