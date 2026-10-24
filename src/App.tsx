@@ -135,6 +135,8 @@ function App() {
       {page === 'report' && <ModulePlaceholder onBack={() => navigate('launcher')} title="Har-Report" desc="Laporan penjualan, keuangan, dan analitik usaha." icon="📊" />}
       {page === 'ai' && <AIDashboard onBack={() => navigate('launcher')} />}
 
+      {page !== 'login' && page !== 'onboarding' && <InstallPrompt />}
+
       {page !== 'login' && page !== 'onboarding' && (
         <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-56 bg-slate-900 border-r border-white/10 flex-col p-4 z-40 text-white">
           <div className="flex items-center gap-2 mb-8">
