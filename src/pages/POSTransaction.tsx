@@ -31,6 +31,8 @@ export default function POSTransaction({ onBack }: Props) {
   const [selectedOpts, setSelectedOpts] = useState<{name:string; price:number}[]>([])
 
   const [category, setCategory] = useState('')
+  const [showHeld, setShowHeld] = useState(false)
+  const [showTables, setShowTables] = useState(false)
 
   const categories = [...new Set(products.map(p => p.category).filter(Boolean))] as string[]
   const filtered = products.filter(p =>
