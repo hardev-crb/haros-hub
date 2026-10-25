@@ -201,22 +201,21 @@ export default function POSTransaction({ onBack }: Props) {
               <Utensils size={14} /> {selectedTable ? tables.find(t => t.id === selectedTable)?.name : 'Meja'}
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2">
             {filtered.map(p => {
               const qty = items.filter(i => i.id === p.id).reduce((s, i) => s + i.qty, 0)
               return (
-                <button key={p.id} onClick={() => addToCart(p)} className="bg-white rounded-xl border border-slate-200 p-2.5 text-left relative active:scale-[0.98] shadow-sm hover:shadow transition">
-                  {qty > 0 && <span className="absolute top-1.5 right-1.5 bg-blue-600 text-white text-[10px] font-bold min-w-[20px] h-5 rounded-full flex items-center justify-center z-10">{qty}</span>}
+                <button key={p.id} onClick={() => addToCart(p)} className="bg-white rounded-lg border border-slate-200 p-2 text-left relative active:scale-[0.98] shadow-sm">
+                  {qty > 0 && <span className="absolute top-1 right-1 bg-blue-600 text-white text-[9px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center z-10">{qty}</span>}
                   {p.image_url ? (
-                    <div className="w-full aspect-[4/3] bg-slate-50 rounded-lg mb-2 flex items-center justify-center overflow-hidden">
+                    <div className="w-full h-16 bg-slate-50 rounded mb-1.5 flex items-center justify-center overflow-hidden">
                       <img src={p.image_url} alt="" className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div className="w-full aspect-[4/3] rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 text-white flex items-center justify-center font-bold text-2xl mb-2">{p.name.slice(0,1)}</div>
+                    <div className="w-full h-16 rounded bg-gradient-to-br from-blue-500 to-cyan-400 text-white flex items-center justify-center font-bold text-lg mb-1.5">{p.name.slice(0,1)}</div>
                   )}
-                  <div className="text-xs font-semibold line-clamp-2 leading-tight">{p.name}</div>
-                  <div className="text-xs font-bold text-blue-600 mt-1">Rp {Number(p.price).toLocaleString('id-ID')}</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">{p.category || 'Umum'}</div>
+                  <div className="text-[11px] font-semibold line-clamp-1 leading-tight">{p.name}</div>
+                  <div className="text-[11px] font-bold text-blue-600">Rp {Number(p.price).toLocaleString('id-ID')}</div>
                 </button>
               )
             })}

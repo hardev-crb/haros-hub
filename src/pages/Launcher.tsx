@@ -70,20 +70,20 @@ export default function Launcher({ onNavigate }: Props) {
         <div className="mb-4">
           <h2 className="text-sm font-medium text-slate-300 mb-3">Modul Aplikasi</h2>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5 md:gap-3">
           {modules.map((m) => (
             <button
               key={m.name}
               onClick={() => onNavigate(m.page)}
-              className="group relative bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl p-4 text-left transition-all duration-200 active:scale-[0.98] overflow-hidden"
+              className="group relative bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl p-3 text-left transition-all duration-200 active:scale-[0.98]"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${m.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
+              <div className={`absolute inset-0 bg-gradient-to-br ${m.gradient} opacity-0 group-hover:opacity-10 rounded-xl transition-opacity`} />
               <div className="relative">
-                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${m.gradient} flex items-center justify-center text-xl mb-3 shadow-lg`}>
+                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${m.gradient} flex items-center justify-center text-lg mb-2`}>
                   {m.icon}
                 </div>
-                <div className="font-semibold text-sm text-white">{m.name}</div>
-                <div className="text-xs text-slate-400 mt-0.5 leading-tight">{m.desc}</div>
+                <div className="font-medium text-xs text-white leading-tight">{m.name}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5 leading-tight line-clamp-1">{m.desc}</div>
               </div>
             </button>
           ))}
