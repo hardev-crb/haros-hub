@@ -44,58 +44,58 @@ export default function Launcher({ onNavigate }: Props) {
           </button>
         </header>
 
-        <div className="relative px-4 pb-8">
+        <div className="relative px-4 pb-6">
           <h1 className="text-xl font-bold">Selamat pagi, {ownerName} 👋</h1>
           <p className="text-blue-100 text-sm mt-1">Pantau performa bisnis dan kelola operasional usaha Anda.</p>
         </div>
       </div>
 
-      <div className="px-4 -mt-6 relative z-10 max-w-6xl mx-auto">
-        {/* Metric Cards - Glass style */}
+      <div className="px-4 -mt-4 relative z-10 max-w-6xl mx-auto">
+        {/* Metric Cards - solid white for readability */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1">
-              <TrendingUp size={12} /> TRANSAKSI HARI INI
+          <div className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-1 text-[10px] text-slate-500 mb-1">
+              <TrendingUp size={12} className="text-blue-500" /> TRANSAKSI HARI INI
             </div>
-            <div className="text-lg font-bold">Rp 4,85 Jt</div>
-            <div className="text-[10px] text-green-300 mt-0.5">↑ 12% vs kemarin</div>
+            <div className="text-lg font-bold text-slate-900">Rp 4,85 Jt</div>
+            <div className="text-[10px] text-emerald-600 mt-0.5">↑ 12% vs kemarin</div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1">
-              <Package size={12} /> STOK KRITIS
+          <div className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-1 text-[10px] text-slate-500 mb-1">
+              <Package size={12} className="text-orange-500" /> STOK KRITIS
             </div>
-            <div className="text-lg font-bold">7 Item</div>
-            <div className="text-[10px] text-orange-300 mt-0.5">Perlu restock</div>
+            <div className="text-lg font-bold text-slate-900">7 Item</div>
+            <div className="text-[10px] text-orange-600 mt-0.5">Perlu restock</div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1">
-              <Wallet size={12} /> SALDO KAS
+          <div className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-1 text-[10px] text-slate-500 mb-1">
+              <Wallet size={12} className="text-blue-500" /> SALDO KAS
             </div>
-            <div className="text-lg font-bold">Rp 18,2 Jt</div>
-            <div className="text-[10px] text-blue-200 mt-0.5">Tersedia</div>
+            <div className="text-lg font-bold text-slate-900">Rp 18,2 Jt</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">Tersedia</div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1">
-              <Clock size={12} /> TUGAS AKTIF
+          <div className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-1 text-[10px] text-slate-500 mb-1">
+              <Clock size={12} className="text-amber-500" /> TUGAS AKTIF
             </div>
-            <div className="text-lg font-bold">5</div>
-            <div className="text-[10px] text-yellow-300 mt-0.5">Menunggu</div>
+            <div className="text-lg font-bold text-slate-900">5</div>
+            <div className="text-[10px] text-amber-600 mt-0.5">Menunggu</div>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <button onClick={() => onNavigate('pos')} className="bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 active:scale-[0.98] transition">
+          <button onClick={() => onNavigate('pos')} className="bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 active:scale-[0.98] transition shadow-sm">
             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">🛒</div>
             <div className="text-left">
               <div className="font-semibold text-sm">Kasir Baru</div>
               <div className="text-[10px] text-blue-100">Buat transaksi penjualan</div>
             </div>
           </button>
-          <button onClick={() => onNavigate('sales')} className="bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 active:scale-[0.98] transition">
+          <button onClick={() => onNavigate('sales')} className="bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 active:scale-[0.98] transition shadow-sm">
             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">📈</div>
             <div className="text-left">
               <div className="font-semibold text-sm">Lihat Penjualan</div>
