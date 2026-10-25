@@ -59,17 +59,17 @@ export default function POSDashboard({ onBack, onNewTx, onNavigate }: Props) {
       <div className="px-4 -mt-4 relative z-10 max-w-4xl mx-auto">
         {/* Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1"><TrendingUp size={12} /> OMZET HARI INI</div>
-            <div className="text-base font-bold">Rp {todayTotal.toLocaleString('id-ID')}</div>
+          <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] border border-white/60">
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-500 mb-1"><TrendingUp size={12} /> OMZET HARI INI</div>
+            <div className="text-lg font-semibold text-slate-900">Rp {todayTotal.toLocaleString('id-ID')}</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1"><Receipt size={12} /> TRANSAKSI</div>
-            <div className="text-base font-bold">{todayTx.length}</div>
+          <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] border border-white/60">
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-500 mb-1"><Receipt size={12} /> TRANSAKSI</div>
+            <div className="text-lg font-semibold text-slate-900">{todayTx.length}</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10 col-span-2 md:col-span-1">
-            <div className="text-[10px] text-blue-200 mb-1">TOTAL OMZET</div>
-            <div className="text-base font-bold">Rp {total.toLocaleString('id-ID')}</div>
+          <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] border border-white/60 col-span-2 md:col-span-1">
+            <div className="text-[10px] font-medium text-slate-500 mb-1">TOTAL OMZET</div>
+            <div className="text-lg font-semibold text-slate-900">Rp {total.toLocaleString('id-ID')}</div>
           </div>
         </div>
 

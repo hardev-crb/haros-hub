@@ -106,7 +106,7 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
           <Bell size={20} />
         </header>
         <div className="relative px-4 pb-6">
-          <h1 className="text-lg font-bold">Manajemen Inventori</h1>
+          <h1 className="text-lg font-semibold text-slate-900">Manajemen Inventori</h1>
           <p className="text-blue-100 text-sm mt-0.5">Kelola stok barang dan pantau ketersediaan.</p>
         </div>
       </div>
@@ -114,13 +114,13 @@ export default function GudangDashboard({ onBack, onProductDetail }: Props) {
       <div className="px-4 -mt-4 relative z-10 max-w-2xl mx-auto">
         {/* Metrics */}
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1"><Box size={12} /> TOTAL BARANG</div>
-            <div className="text-lg font-bold">{products.length}</div>
+          <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] border border-white/60">
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-500 mb-1"><Box size={12} /> TOTAL BARANG</div>
+            <div className="text-lg font-semibold text-slate-900">{products.length}</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1"><AlertTriangle size={12} /> STOK RENDAH</div>
-            <div className="text-lg font-bold">{lowStock}</div>
+          <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] border border-white/60">
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-500 mb-1"><AlertTriangle size={12} /> STOK RENDAH</div>
+            <div className="text-lg font-semibold text-slate-900">{lowStock}</div>
           </div>
         </div>
 

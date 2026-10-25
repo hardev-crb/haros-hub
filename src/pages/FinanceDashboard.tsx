@@ -88,17 +88,17 @@ export default function FinanceDashboard({ onBack }: Props) {
       <div className="px-4 -mt-4 relative z-10 max-w-2xl mx-auto">
         {/* Metric Cards */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1"><ArrowDownCircle size={12} /> MASUK</div>
-            <div className="text-base font-bold">Rp {income.toLocaleString('id-ID')}</div>
+          <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] border border-white/60">
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-500 mb-1"><ArrowDownCircle size={12} /> MASUK</div>
+            <div className="text-lg font-semibold text-slate-900">Rp {income.toLocaleString('id-ID')}</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10">
-            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1"><ArrowUpCircle size={12} /> KELUAR</div>
-            <div className="text-base font-bold">Rp {expense.toLocaleString('id-ID')}</div>
+          <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] border border-white/60">
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-500 mb-1"><ArrowUpCircle size={12} /> KELUAR</div>
+            <div className="text-lg font-semibold text-slate-900">Rp {expense.toLocaleString('id-ID')}</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10">
-            <div className="text-[10px] text-blue-200 mb-1">SALDO</div>
-            <div className={`text-base font-bold ${balance >= 0 ? 'text-green-300' : 'text-red-300'}`}>Rp {balance.toLocaleString('id-ID')}</div>
+          <div className="bg-white/95 backdrop-blur rounded-2xl p-4 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] border border-white/60">
+            <div className="text-[10px] font-medium text-slate-500 mb-1">SALDO</div>
+            <div className={`text-lg font-semibold text-slate-900 ${balance >= 0 ? 'text-green-300' : 'text-red-300'}`}>Rp {balance.toLocaleString('id-ID')}</div>
           </div>
         </div>
 

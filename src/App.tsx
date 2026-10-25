@@ -20,6 +20,9 @@ import PromoManager from './pages/PromoManager'
 import ToppingManager from './pages/ToppingManager'
 import InstallPrompt from './components/InstallPrompt'
 import ModulePlaceholder from './pages/ModulePlaceholder'
+import PurchaseDashboard from './pages/PurchaseDashboard'
+import PromoDashboard from './pages/PromoDashboard'
+import ReportDashboard from './pages/ReportDashboard'
 
 export type Page = 
   | 'login' | 'onboarding' | 'launcher' 
@@ -128,11 +131,11 @@ function App() {
       {/* New modules */}
       {page === 'finance' && <FinanceDashboard onBack={() => navigate('launcher')} />}
       {page === 'customer' && <CustomerDashboard onBack={() => navigate('launcher')} />}
-      {page === 'purchase' && <ModulePlaceholder onBack={() => navigate('launcher')} title="Har-Purchase" desc="Pembelian dari supplier dan manajemen stok masuk." icon="🚚" />}
+      {page === 'purchase' && <PurchaseDashboard onBack={() => navigate('launcher')} />}
       {page === 'rental' && <RentalDashboard onBack={() => navigate('launcher')} />}
       {page === 'deadline' && <DeadlineDashboard onBack={() => navigate('launcher')} />}
-      {page === 'promo' && <ModulePlaceholder onBack={() => navigate('launcher')} title="Har-Promo" desc="Buat dan kelola diskon, voucher, dan promosi." icon="🎁" />}
-      {page === 'report' && <ModulePlaceholder onBack={() => navigate('launcher')} title="Har-Report" desc="Laporan penjualan, keuangan, dan analitik usaha." icon="📊" />}
+      {page === 'promo' && <PromoDashboard onBack={() => navigate('launcher')} />}
+      {page === 'report' && <ReportDashboard onBack={() => navigate('launcher')} />}
       {page === 'ai' && <AIDashboard onBack={() => navigate('launcher')} />}
 
       {page !== 'login' && page !== 'onboarding' && <InstallPrompt />}
