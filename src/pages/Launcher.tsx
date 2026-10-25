@@ -1,4 +1,5 @@
 import type { Page } from '../App'
+import { Bell, TrendingUp, Package, Wallet, Clock } from 'lucide-react'
 
 interface Props {
   onNavigate: (page: Page) => void
@@ -22,73 +23,107 @@ const modules = [
 
 export default function Launcher({ onNavigate }: Props) {
   const businessName = localStorage.getItem('haros_business_name') || 'HarOS Hub'
-  const ownerName = localStorage.getItem('haros_owner_name') || 'Owner'
+  const ownerName = localStorage.getItem('haros_owner_name') || 'Andika'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 md:ml-56 text-white">
-      {/* Header */}
-      <header className="bg-white/5 backdrop-blur-xl border-b border-white/10 px-4 md:px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <img src="/logos/haros-hub-logo.jpg" alt="" className="w-10 h-10 rounded-xl object-cover ring-2 ring-white/20" />
-          <div>
-            <div className="font-semibold text-sm">{businessName}</div>
-            <div className="text-xs text-slate-400">{ownerName}</div>
+    <div className="min-h-screen bg-slate-100 pb-6 md:ml-56">
+      {/* Dark Blue Gradient Header */}
+      <div className="bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-blue-600/20 rounded-full -translate-y-1/2 translate-x-1/4" />
+        <header className="relative px-4 pt-5 pb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/logos/haros-hub-logo.jpg" alt="" className="w-10 h-10 rounded-xl object-cover ring-2 ring-white/30" />
+            <div>
+              <div className="font-bold text-lg leading-tight">{businessName}</div>
+              <div className="text-xs text-blue-200">HarOS Hub</div>
+            </div>
+          </div>
+          <button className="relative p-1">
+            <Bell size={22} />
+            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
+          </button>
+        </header>
+
+        <div className="relative px-4 pb-8">
+          <h1 className="text-xl font-bold">Selamat pagi, {ownerName} 👋</h1>
+          <p className="text-blue-100 text-sm mt-1">Pantau performa bisnis dan kelola operasional usaha Anda.</p>
+        </div>
+      </div>
+
+      <div className="px-4 -mt-6 relative z-10 max-w-6xl mx-auto">
+        {/* Metric Cards - Glass style */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 text-white border border-white/10">
+            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1">
+              <TrendingUp size={12} /> TRANSAKSI HARI INI
+            </div>
+            <div className="text-lg font-bold">Rp 4,85 Jt</div>
+            <div className="text-[10px] text-green-300 mt-0.5">↑ 12% vs kemarin</div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 text-white border border-white/10">
+            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1">
+              <Package size={12} /> STOK KRITIS
+            </div>
+            <div className="text-lg font-bold">7 Item</div>
+            <div className="text-[10px] text-orange-300 mt-0.5">Perlu restock</div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 text-white border border-white/10">
+            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1">
+              <Wallet size={12} /> SALDO KAS
+            </div>
+            <div className="text-lg font-bold">Rp 18,2 Jt</div>
+            <div className="text-[10px] text-blue-200 mt-0.5">Tersedia</div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 text-white border border-white/10">
+            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1">
+              <Clock size={12} /> TUGAS AKTIF
+            </div>
+            <div className="text-lg font-bold">5</div>
+            <div className="text-[10px] text-yellow-300 mt-0.5">Menunggu</div>
           </div>
         </div>
-        <div className="text-xs bg-white/10 px-3 py-1 rounded-full">HarOS Hub</div>
-      </header>
 
-      <main className="p-4 md:p-8 max-w-6xl mx-auto">
-        {/* Hero */}
-        <div className="mb-8 relative">
-          <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl rounded-full opacity-50" />
-          <h1 className="relative text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-slate-300 bg-clip-text text-transparent">
-            Selamat datang di HarOS Hub
-          </h1>
-          <p className="relative text-slate-400 mt-2 text-sm md:text-base">
-            Pusat kendali operasional usaha Anda — modern, terintegrasi, dan siap berkembang.
-          </p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-          {[
-            { label: 'Transaksi Hari Ini', value: '—', icon: '🛒' },
-            { label: 'Stok Kritis', value: '—', icon: '📦' },
-            { label: 'Pendapatan', value: '—', icon: '💰' },
-            { label: 'Tugas Aktif', value: '—', icon: '⏰' },
-          ].map((s) => (
-            <div key={s.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur">
-              <div className="text-lg mb-1">{s.icon}</div>
-              <div className="text-xs text-slate-400">{s.label}</div>
-              <div className="text-lg font-semibold mt-1">{s.value}</div>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <button onClick={() => onNavigate('pos')} className="bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 active:scale-[0.98] transition">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">🛒</div>
+            <div className="text-left">
+              <div className="font-semibold text-sm">Kasir Baru</div>
+              <div className="text-[10px] text-blue-100">Buat transaksi penjualan</div>
             </div>
-          ))}
+          </button>
+          <button onClick={() => onNavigate('sales')} className="bg-blue-600 text-white rounded-2xl p-4 flex items-center gap-3 active:scale-[0.98] transition">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">📈</div>
+            <div className="text-left">
+              <div className="font-semibold text-sm">Lihat Penjualan</div>
+              <div className="text-[10px] text-blue-100">Target & performa</div>
+            </div>
+          </button>
         </div>
 
-        {/* Modules Grid */}
-        <div className="mb-4">
-          <h2 className="text-sm font-medium text-slate-300 mb-3">Modul Aplikasi</h2>
+        {/* Modules */}
+        <div className="mb-3">
+          <h2 className="text-sm font-semibold text-slate-700">Semua Modul</h2>
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5 md:gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
           {modules.map((m) => (
             <button
               key={m.name}
               onClick={() => onNavigate(m.page)}
-              className="group relative bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl p-3 text-left transition-all duration-200 active:scale-[0.98]"
+              className="bg-white rounded-2xl p-3.5 text-left shadow-sm border border-slate-100 hover:shadow-md active:scale-[0.98] transition"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${m.gradient} opacity-0 group-hover:opacity-10 rounded-xl transition-opacity`} />
-              <div className="relative">
-                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${m.gradient} flex items-center justify-center text-lg mb-2`}>
-                  {m.icon}
-                </div>
-                <div className="font-medium text-xs text-white leading-tight">{m.name}</div>
-                <div className="text-[10px] text-slate-400 mt-0.5 leading-tight line-clamp-1">{m.desc}</div>
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${m.gradient} flex items-center justify-center text-lg mb-2`}>
+                {m.icon}
               </div>
+              <div className="font-semibold text-xs text-slate-900 leading-tight">{m.name}</div>
+              <div className="text-[10px] text-slate-500 mt-0.5 leading-tight line-clamp-2">{m.desc}</div>
             </button>
           ))}
         </div>
-      </main>
+      </div>
     </div>
   )
 }

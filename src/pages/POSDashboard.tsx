@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getSupabase } from '../lib/supabase'
-import { ShoppingCart, Plus, ArrowLeft, TrendingUp, Receipt } from 'lucide-react'
+import { ShoppingCart, Plus, ArrowLeft, TrendingUp, Receipt, Bell } from 'lucide-react'
 
 interface Props {
   onBack?: () => void
@@ -33,42 +33,48 @@ export default function POSDashboard({ onBack, onNewTx, onNavigate }: Props) {
   const todayTotal = todayTx.reduce((s, t) => s + Number(t.total || 0), 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 md:ml-56">
-      <header className="bg-white/80 backdrop-blur border-b border-slate-200 px-4 md:px-6 py-4 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          {onBack && <button onClick={onBack} className="p-2 rounded-xl hover:bg-slate-100 md:hidden"><ArrowLeft size={20} /></button>}
-          <div className="flex-1 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white">
-              <ShoppingCart size={20} />
+    <div className="min-h-screen bg-slate-100 pb-6">
+      {/* Dark Header */}
+      <div className="bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 text-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full -translate-y-1/2 translate-x-1/3" />
+        <header className="relative px-4 pt-4 pb-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {onBack && <button onClick={onBack} className="p-1.5 rounded-lg hover:bg-white/10"><ArrowLeft size={20} /></button>}
+            <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+              <ShoppingCart size={18} />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-900">Har-POS</h1>
-              <p className="text-xs text-slate-500">Kasir & Transaksi Penjualan</p>
+              <div className="font-bold text-base">Har-POS</div>
+              <div className="text-xs text-blue-200">Kasir & Transaksi</div>
             </div>
           </div>
-          <button onClick={onNewTx} className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-sm px-4 py-2.5 rounded-xl font-medium shadow-sm hover:shadow active:scale-95 transition flex items-center gap-1.5">
-            <Plus size={16} /> Baru
-          </button>
+          <Bell size={20} />
+        </header>
+        <div className="relative px-4 pb-6">
+          <h1 className="text-lg font-bold">Dashboard Kasir</h1>
+          <p className="text-blue-100 text-sm mt-0.5">Kelola transaksi dan pantau omzet hari ini.</p>
         </div>
-      </header>
+      </div>
 
-      <main className="p-4 md:p-6 max-w-4xl">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2 text-xs text-slate-500 mb-1"><TrendingUp size={14} className="text-blue-500" /> Omzet Hari Ini</div>
-            <div className="text-xl font-bold text-slate-900">Rp {todayTotal.toLocaleString('id-ID')}</div>
+      <div className="px-4 -mt-4 relative z-10 max-w-4xl mx-auto">
+        {/* Metrics */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10">
+            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1"><TrendingUp size={12} /> OMZET HARI INI</div>
+            <div className="text-base font-bold">Rp {todayTotal.toLocaleString('id-ID')}</div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2 text-xs text-slate-500 mb-1"><Receipt size={14} className="text-emerald-500" /> Transaksi Hari Ini</div>
-            <div className="text-xl font-bold text-slate-900">{todayTx.length}</div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10">
+            <div className="flex items-center gap-1 text-[10px] text-blue-200 mb-1"><Receipt size={12} /> TRANSAKSI</div>
+            <div className="text-base font-bold">{todayTx.length}</div>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm col-span-2 md:col-span-1">
-            <div className="text-xs text-slate-500 mb-1">Total Omzet (terakhir)</div>
-            <div className="text-xl font-bold text-slate-900">Rp {total.toLocaleString('id-ID')}</div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 text-white border border-white/10 col-span-2 md:col-span-1">
+            <div className="text-[10px] text-blue-200 mb-1">TOTAL OMZET</div>
+            <div className="text-base font-bold">Rp {total.toLocaleString('id-ID')}</div>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mb-6">
+        {/* Quick Module Buttons */}
+        <div className="grid grid-cols-4 gap-2 mb-4">
           {[
             { label: 'Meja', page: 'tables', icon: '🪑' },
             { label: 'Promo', page: 'promos', icon: '🎁' },
@@ -79,17 +85,22 @@ export default function POSDashboard({ onBack, onNewTx, onNavigate }: Props) {
             { label: 'Laporan', page: 'shift-report', icon: '📊' },
             { label: 'Setting', page: 'pos-settings', icon: '⚙️' },
           ].map(m => (
-            <button key={m.page} onClick={() => onNavigate?.(m.page)} className="bg-white border rounded-xl p-3 text-center text-xs hover:bg-slate-50">
-              <div className="text-lg">{m.icon}</div>
-              <div className="mt-1 font-medium">{m.label}</div>
+            <button key={m.page} onClick={() => onNavigate?.(m.page)} className="bg-white rounded-xl p-2.5 text-center text-xs shadow-sm border border-slate-100 active:scale-95 transition">
+              <div className="text-lg mb-0.5">{m.icon}</div>
+              <div className="font-medium text-slate-700">{m.label}</div>
             </button>
           ))}
         </div>
 
+        <button onClick={onNewTx} className="w-full bg-blue-600 text-white rounded-2xl py-3.5 font-semibold flex items-center justify-center gap-2 mb-4 active:scale-[0.98] transition">
+          <Plus size={18} /> Transaksi Baru
+        </button>
+
         {error && <div className="mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl">{error}</div>}
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-5 py-3.5 border-b text-sm font-semibold text-slate-700 flex items-center gap-2">
+        {/* Transactions List */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b text-sm font-semibold text-slate-700 flex items-center gap-2">
             <Receipt size={16} className="text-blue-500" /> Riwayat Transaksi
           </div>
           {loading ? (
@@ -102,7 +113,7 @@ export default function POSDashboard({ onBack, onNewTx, onNavigate }: Props) {
           ) : (
             <div className="divide-y">
               {transactions.map(tx => (
-                <div key={tx.id} className="px-5 py-3.5 flex justify-between items-center hover:bg-slate-50 transition">
+                <div key={tx.id} className="px-4 py-3.5 flex justify-between items-center">
                   <div>
                     <div className="text-sm font-medium text-slate-900">{tx.id.slice(0, 8).toUpperCase()}</div>
                     <div className="text-xs text-slate-400">{new Date(tx.created_at).toLocaleString('id-ID')}</div>
@@ -113,7 +124,7 @@ export default function POSDashboard({ onBack, onNewTx, onNavigate }: Props) {
             </div>
           )}
         </div>
-      </main>
+      </div>
     </div>
   )
 }
